@@ -1,0 +1,43 @@
+.historial-container {
+    border-radius: 5px;
+}
+
+.container-transaction {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.card-transaction {
+    width: 100%;
+    max-width: 700px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.card-body-transaction {
+    padding: 2rem;
+}
+
+.list-group-historial {
+    max-height: 150px; 
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 5px;
+}
+
+.historial-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.historial-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.historial-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

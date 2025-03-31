@@ -1,0 +1,67 @@
+.container-game {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.carga {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.card-game {
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-body-game {
+    padding: 2rem;
+}
+
+.list-group-historial {
+    margin-top: 1rem;
+}
+
+.list-group-item-historial {
+    font-size: 1rem;
+    border: none;
+    padding: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    transition: background 0.3s ease-in-out;
+}
+
+.list-group-item-historial:hover {
+    background: #e9ecef;
+}
+
+.btn-despegable,
+.btn-transacciones {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+}
+
+.dropdown-menu {
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    transition: background 0.2s ease-in-out;
+}
+
+.dropdown-item:hover {
+    background: #f0f0f0;
+}
