@@ -200,6 +200,7 @@ export default {
 
       monto.value = "";
       destino.value = "";
+      router.push(`/partida/${codigo}`);
     };
 
     const volverAPartida = () => {

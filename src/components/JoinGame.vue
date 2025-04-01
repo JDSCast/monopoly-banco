@@ -77,6 +77,7 @@
           if (partidaData.jugadores.some(j => j.uid === uid)) {
             mensaje.value = "Ya estás en esta partida.";
             toast.info("Ya estás en esta partida.", { autoClose: 3000, theme: "light" });
+            router.push("/partida/" + codigoIngresado.value);
             return;
           }
   
