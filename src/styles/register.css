@@ -4,6 +4,9 @@
     align-items: center;
     min-height: 100vh;
     padding: 20px; /* Evita que el contenido se pegue en móviles */
+    background-image: url('../images/Fondo_signup.jpg');    
+    background-size: cover;  /* Ajusta la imagen responsive */    
+    background-position: center;
 }
 
 .card-register {
@@ -21,11 +24,17 @@
 
 /* Inputs adaptables */
 .form-control {
+    background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con opacidad */
     border-radius: 8px;
     border: 1px solid #ccc;
     padding: 10px;
     font-size: 16px;
     width: 100%;
+}
+
+.form-control:focus {    
+    border-color: #007bff; /* Cambia el color del borde al enfocar */    
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Sombra azul al enfocar */
 }
 
 /* Botón mejorado para adaptarse */

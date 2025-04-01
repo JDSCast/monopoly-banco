@@ -4,6 +4,9 @@
     align-items: center;
     min-height: 100vh;
     padding: 20px;
+    background-image: url('../images/Fondo_signup.jpg');    
+    background-size: cover;  /* Ajusta la imagen responsive */    
+    background-position: center
 }
 
 .card-login {
@@ -26,6 +29,12 @@
     padding: 10px;
     font-size: 16px;
     width: 100%;
+    background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con opacidad */
+}
+
+.form-control:focus {    
+    border-color: #007bff; /* Cambia el color del borde al enfocar */    
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Sombra azul al enfocar */
 }
 
 /* Estilos del botón */
