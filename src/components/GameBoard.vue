@@ -37,8 +37,9 @@
   <script>
   import { ref, onMounted } from "vue";
   import { useRoute, useRouter } from "vue-router";
-  import { getFirestore, doc, onSnapshot } from "firebase/firestore";
+  import { getFirestore, doc, onSnapshot, updateDoc} from "firebase/firestore";
   import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+  import Swal from "sweetalert2";
   import "../styles/gameBoard.css";
   
   export default {
@@ -83,13 +84,39 @@
         return () => unsub();
       };
   
-      const handleBancarrota = () => {
-        if (!jugadorActual.value || jugadorActual.value.saldo > 0) {
-          alert("No puedes declararte en bancarrota si aún tienes saldo.");
+      const handleBancarrota = async () => {
+        if (!jugadorActual.value) {
+          Swal.fire("Error", "No se pudo identificar al jugador actual.", "error");
           return;
         }
+
+          // Mostrar una alerta simple de confirmación
+        const result = await Swal.fire({
+          title: "Confirmar bancarrota",
+          text: "Tu saldo será establecido en cero y saldrás del juego.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          cancelButtonText: "Cancelar",
+          confirmButtonText: "Aceptar",
+        });
+        if (result.isConfirmed) {
+        // Establece el saldo en cero directamente
+        jugadorActual.value.saldo = 0;
+        // Actualiza la partida en Firestore
+        const partidaRef = doc(db, "partidas", codigo);
+        await updateDoc(partidaRef, {
+          jugadores: partida.value.jugadores.map(j =>
+            j.uid === jugadorActual.value.uid ? { ...j, saldo: 0 } : j
+          ),
+        });
+        
+        Swal.fire("Bancarrota", "Te has declarado en bancarrota. Tu saldo ahora es cero.", "success");
         router.push("/inicio");
-      };
+      }
+
+    };
   
       const handleSalir = async () => {
         await signOut(auth);

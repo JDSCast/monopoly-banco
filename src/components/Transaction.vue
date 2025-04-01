@@ -22,6 +22,7 @@
                 type="number"
                 class="form-control"
                 v-model="monto"
+                min=1
               />
             </div>
 
@@ -41,8 +42,8 @@
                 v-model="destino"
               >
                 <option value="">Seleccionar jugador</option>
-                <option v-for="j in partida?.jugadores.filter(j => j.uid !== usuarioActual?.uid)" :key="j.uid" :value="j.uid">
-                  {{ j.nombre }}
+                <option v-for="j in partida?.jugadores.filter(j => j.uid !== usuarioActual?.uid && j.uid !== jugadorActual?.uid)" :key="j.uid" :value="j.uid">
+                {{ j.nombre }}
                 </option>
               </select>
             </div>
@@ -138,6 +139,10 @@ export default {
       return monto.value > 0;
     });
 
+    const validarMonto = () => {
+    
+    monto.value = monto.value.replace(/[^0-9]/g, "");
+    };
     const fetchPartida = () => {
       const partidaRef = doc(db, "partidas", codigo);
       const unsub = onSnapshot(partidaRef, (docSnap) => {
@@ -184,7 +189,7 @@ export default {
           text: 'Revisa los campos e intenta de nuevo.',
           confirmButtonText: 'OK'
         });
-  //toast.error("Seleccione un destino válido.", { autoClose: 3000 });
+
           return;
         }
 
@@ -195,7 +200,7 @@ export default {
           text: 'No tienes suficiente dinero para esta transacción.',
           confirmButtonText: 'OK'
           });
-          //toast.error("Saldo insuficiente.", { autoClose: 3000 });
+
           return;
         }
         jugadorActual.value.saldo -= montoNum;
@@ -245,6 +250,7 @@ export default {
       handleConfirmar,
       isValidTransaction,
       volverAPartida,
+      validarMonto
     };
   },
 };
