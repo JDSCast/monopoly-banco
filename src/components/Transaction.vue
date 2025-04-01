@@ -7,13 +7,13 @@
 
           <div class="row align-items-center">
             <div class="col-md-6">
-              <label class="form-label">Usuario Actual</label>
-              <input type="text" class="form-control" :value="jugadorActual?.nombre || ''" readonly />
+              <label class="form-label">Usuario Actual: </label>
+              <p class="form-control-plaintext">{{ jugadorActual?.nombre || 'N/A' }}</p>
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Saldo</label>
-              <input type="number" class="form-control" :value="jugadorActual?.saldo || 0" readonly />
+              <label class="form-label">Saldo: </label>
+              <p class="form-control-plaintext">{{ jugadorActual?.saldo || 'N/A' }}</p>
             </div>
 
             <div class="col-md-4">
@@ -111,6 +111,9 @@ import { getFirestore, doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import Swal from 'sweetalert2';
 
+
+
+
 export default {
   name: 'Transaction',
   setup() {
@@ -153,7 +156,13 @@ export default {
 
     const handleConfirmar = async () => {
       if (!isValidTransaction.value) {
-        toast.error("Transacción no válida.", { autoClose: 3000 });
+        Swal.fire({
+        icon: 'error',
+        title: 'Transacción no válida',
+        text: 'Revisa los campos e intenta de nuevo.',
+        confirmButtonText: 'OK'
+      });
+      //toast.error("Transacción no válida.", { autoClose: 3000 });
         return;
       }
       const montoNum = parseFloat(monto.value);
@@ -169,11 +178,24 @@ export default {
       if (tipo.value === "enviar") {
         const jugadorDestino = partida.value?.jugadores.find(j => j.uid === destino.value);
         if (!jugadorDestino) {
-          //toast.error("Seleccione un destino válido.", { autoClose: 3000 });
+          Swal.fire({
+          icon: 'error',
+          title: 'Transacción no válida',
+          text: 'Revisa los campos e intenta de nuevo.',
+          confirmButtonText: 'OK'
+        });
+  //toast.error("Seleccione un destino válido.", { autoClose: 3000 });
           return;
         }
+
         if (jugadorActual.value.saldo < montoNum) {
-          toast.error("Saldo insuficiente.", { autoClose: 3000 });
+          Swal.fire({
+          icon: 'error',
+          title: 'Saldo insuficiente',
+          text: 'No tienes suficiente dinero para esta transacción.',
+          confirmButtonText: 'OK'
+          });
+          //toast.error("Saldo insuficiente.", { autoClose: 3000 });
           return;
         }
         jugadorActual.value.saldo -= montoNum;
@@ -190,6 +212,9 @@ export default {
         jugadorActual.value.saldo -= montoNum;
         nuevaTransaccion.destino = "Banco";
       }
+      const jugadoresDisponibles = computed(() => {
+      return partida.value?.jugadores.filter(j => j.uid !== jugadorActual.value?.uid) || [];
+      });
 
       const partidaRef = doc(db, "partidas", codigo);
       await updateDoc(partidaRef, {
