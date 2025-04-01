@@ -1,4 +1,3 @@
-// Register.vue
 <template>
   <div class="container-register">
     <div class="card card-register mx-auto">
@@ -34,7 +33,8 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { getFirestore, doc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { useToast } from 'vue-toastification';
+import Swal from 'sweetalert2';
+
 
 
 export default {
@@ -43,7 +43,7 @@ export default {
     const email = ref('');
     const password = ref('');
     const router = useRouter();
-    const toast = useToast();
+    
     const auth = getAuth();
     const db = getFirestore();
 
@@ -55,14 +55,28 @@ export default {
 
     const handleRegister = async () => {
       if (!name.value || !email.value || !password.value) {
-        toast.error("Todos los campos son obligatorios");
+        Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Todos los campos son obligatorios.',
+        confirmButtonText: 'OK'
+        });
+        //toast.error("Todos los campos son obligatorios");
         return;
       }
+      
 
       try {
         const existeNombre = await verificarNombreUnico(name.value);
         if (existeNombre) {
-          toast.error("El nombre de usuario ya está en uso.");
+          Swal.fire({
+          icon: 'error',
+            title: 'Nombre en uso',
+          text: 'El nombre de usuario ya fue registrado por otro jugador.',
+          confirmButtonText: 'OK'
+        });
+
+          //toast.error("El nombre de usuario ya está en uso.");
           return;
         }
 
@@ -75,8 +89,13 @@ export default {
           name: name.value,
           email: email.value,
         });
-        console.log("inicia")
-        toast.success("Registro exitoso. Inicia sesión.");
+        Swal.fire({
+        icon: "success",
+        title: "Registrado",
+        text: "Usuario registrado.",
+        confirmButtonText: "OK",
+      });
+  //toast.success("Registro exitoso. Inicia sesión.");
         router.push("/login");
       } catch (error) {
         handleAuthError(error.code);
@@ -89,7 +108,12 @@ export default {
         'auth/invalid-email': "Correo inválido.",
         'auth/weak-password': "La contraseña debe tener al menos 6 caracteres.",
       };
-      toast.error(errorMessages[errorCode] || "Error al registrar. Inténtalo de nuevo.");
+      Swal.fire({
+        icon: "error",
+        title: "Error de autenticación",
+        text: errorMessages[errorCode] || "Error al registrar. Inténtalo de nuevo.",
+        confirmButtonText: "OK",
+      });
     };
 
     return { name, email, password, handleRegister };

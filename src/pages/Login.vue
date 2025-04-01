@@ -28,29 +28,55 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useToast } from 'vue-toastification';
 import { auth } from '../firebase/config.js';
+import Swal from 'sweetalert2';
+
 
 export default {
   setup() {
     const email = ref('');
     const password = ref('');
     const router = useRouter();
-    const toast = useToast();
-
+    
     const handleLogin = async () => {
-      if (!email.value || !password.value) {
-        toast.error("Todos los campos son obligatorios");
+      if ( !email.value || !password.value) {
+        //alerta de sweetalert2
+        Swal.fire({
+        title: '¡Error!',
+        text: 'Debes llenar todos los campos.',
+        icon: 'error',
+        });
+        
         return;
       }
-      try {
-        await signInWithEmailAndPassword(auth, email.value, password.value);
-        toast.success("Inicio de sesión exitoso");
-        router.push('/inicio');
-      } catch (error) {
-        handleAuthError(error.code);
-      }
-    };
+    try {
+      await signInWithEmailAndPassword(auth, email.value, password.value);
+
+      Swal.fire({
+        title: '¡Bienvenido!',
+        text: 'Has iniciado sesión correctamente.',
+        icon: 'success',
+        confirmButtonText: 'Continuar'
+      }).then(() => {
+        router.push("/inicio");
+      });
+
+    } catch (error) {
+      console.error("Error al iniciar sesión:", error);
+
+      Swal.fire({
+        title: 'Error',
+        text: error.message.includes('auth/user-not-found')
+          ? 'El usuario no existe.'
+          : error.message.includes('auth/wrong-password')
+          ? 'Contraseña incorrecta.'
+          : 'No se puede iniciar sesión.',
+        icon: 'error',
+        confirmButtonText: 'Intentar de nuevo'
+      });
+    }
+  };
+
 
     const handleAuthError = (errorCode) => {
       const errorMessages = {
@@ -60,7 +86,13 @@ export default {
         'auth/invalid-email': "Correo no válido",
         'auth/user-disabled': "Este usuario ha sido deshabilitado",
       };
-      toast.error(errorMessages[errorCode] || "Error al iniciar sesión. Inténtalo nuevamente.");
+      
+      Swal.fire({
+        title: '¡Problemas!',
+        text: {errorMessages},
+        icon: 'Error',
+        confirmButtonText: 'Intentar de nuevo.'
+      })
     };
 
     return { email, password, handleLogin };

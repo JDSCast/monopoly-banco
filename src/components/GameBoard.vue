@@ -39,7 +39,6 @@
   import { useRoute, useRouter } from "vue-router";
   import { getFirestore, doc, onSnapshot } from "firebase/firestore";
   import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-  import { useToast } from "vue-toastification";
   import "../styles/gameBoard.css";
   
   export default {
@@ -51,7 +50,7 @@
       const jugadorActual = ref(null);
       const auth = getAuth();
       const db = getFirestore();
-      const toast = useToast();
+      
   
       onMounted(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -75,7 +74,7 @@
             
             const ultimaTransaccion = partida.value.transacciones?.slice(-1)[0];
             if (ultimaTransaccion && ultimaTransaccion.destino === jugadorActual.value?.nombre) {
-              toast.info(`${ultimaTransaccion.origen} te transfirió $${ultimaTransaccion.monto}`, { autoClose: 5000, theme: "light" });
+              //toast.info(`${ultimaTransaccion.origen} te transfirió $${ultimaTransaccion.monto}`, { autoClose: 5000, theme: "light" });
             }
           } else {
             router.push("/inicio");

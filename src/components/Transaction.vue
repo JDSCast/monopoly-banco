@@ -109,7 +109,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getFirestore, doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { useToast } from 'vue-toastification';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'Transaction',
@@ -118,7 +118,6 @@ export default {
     const router = useRouter();
     const db = getFirestore();
     const auth = getAuth();
-    const toast = useToast();
 
     const codigo = route.params.codigo;
     const usuarioActual = auth.currentUser;
@@ -170,7 +169,7 @@ export default {
       if (tipo.value === "enviar") {
         const jugadorDestino = partida.value?.jugadores.find(j => j.uid === destino.value);
         if (!jugadorDestino) {
-          toast.error("Seleccione un destino válido.", { autoClose: 3000 });
+          //toast.error("Seleccione un destino válido.", { autoClose: 3000 });
           return;
         }
         if (jugadorActual.value.saldo < montoNum) {

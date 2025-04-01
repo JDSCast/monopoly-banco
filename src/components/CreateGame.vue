@@ -3,7 +3,7 @@
     <div class="card card-create">
       <div class="card-body card-body-create">
         <h3 class="me-2">Código: {{ codigo }}</h3>
-        <h5>Estado de la partida: <span class="badge bg-info">{{ estado }}</span></h5>
+        <h5>Estado de la partida: <span class="badge bg-primary">{{ estado }}</span></h5>
         <h4>Lista de participantes</h4>
         <ul class="list-group">
           <li v-for="(p, index) in participantes" :key="index" class="list-group-item">
@@ -11,7 +11,7 @@
           </li>
         </ul>
         <div v-if="estado === 'No iniciada'" class="d-grid">
-          <button class="btn btn-primary mt-3" @click="iniciarPartida">Iniciar partida</button>
+          <button class="btn btn-outline-primary mt-3" @click="iniciarPartida">Iniciar partida</button>
           <button class="btn btn-danger mt-3" @click="$router.push('/inicio')">Volver</button>
         </div>
       </div>
@@ -22,8 +22,9 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import Swal from "sweetalert2";
 
 export default {
   setup() {
@@ -33,48 +34,76 @@ export default {
     const auth = getAuth();
     const db = getFirestore();
     const router = useRouter();
-    const isExecuted = ref(false);
-
+    
     const generarCodigo = () => Math.floor(1000 + Math.random() * 9000).toString();
 
     onMounted(async () => {
-      if (isExecuted.value) return;
-      isExecuted.value = true;
-      
       const user = auth.currentUser;
       if (!user) return;
 
       const userNombre = user.displayName || "Jugador";
-      const nuevoCodigo = generarCodigo();
-      const partidasRef = doc(db, "partidas", nuevoCodigo);
+      let nuevoCodigo = generarCodigo();
+      let partidasRef = doc(db, "partidas", nuevoCodigo);
 
-      await setDoc(partidasRef, {
-        codigo: nuevoCodigo,
-        estado: "No iniciada",
-        uidCreador: user.uid,
-        usuarioCreador: userNombre,
-        jugadores: [{ uid: user.uid, nombre: userNombre, saldo: 1500 }]
-      });
-
-      codigo.value = nuevoCodigo;
-      participantes.value = [{ uid: user.uid, nombre: userNombre, saldo: 1500 }];
-      estado.value = "No iniciada";
-
-      const unsub = onSnapshot(partidasRef, (docSnap) => {
-        if (docSnap.exists()) {
-          participantes.value = docSnap.data().jugadores;
-          estado.value = docSnap.data().estado;
-
-          if (docSnap.data().estado === "iniciada") {
-            router.push(`/partida/${nuevoCodigo}`);
-          }
+      try {
+        // Verifica si la partida ya existe
+        const partidaSnap = await getDoc(partidasRef);
+        if (partidaSnap.exists()) {
+          nuevoCodigo = generarCodigo(); // Genera otro si ya existe
+          partidasRef = doc(db, "partidas", nuevoCodigo);
         }
-      });
+
+        // Crea la nueva partida
+        await setDoc(partidasRef, {
+          codigo: nuevoCodigo,
+          estado: "No iniciada",
+          uidCreador: user.uid,
+          usuarioCreador: userNombre,
+          jugadores: [{ uid: user.uid, nombre: userNombre, saldo: 1500 }]
+        });
+
+        // Asignar valores locales
+        codigo.value = nuevoCodigo;
+        participantes.value = [{ uid: user.uid, nombre: userNombre, saldo: 1500 }];
+        estado.value = "No iniciada";
+
+        // Escuchar cambios en la partida
+        onSnapshot(partidasRef, (docSnap) => {
+          if (docSnap.exists()) {
+            participantes.value = docSnap.data().jugadores;
+            estado.value = docSnap.data().estado;
+
+            if (docSnap.data().estado === "iniciada") {
+              router.push(`/partida/${nuevoCodigo}`);
+            }
+          }
+        });
+
+      } catch (error) {
+        console.error("Error al crear la partida:", error);
+        Swal.fire("Error", "No se pudo crear la partida. Inténtalo de nuevo.", "error");
+      }
     });
 
     const iniciarPartida = async () => {
-      const partidaRef = doc(db, "partidas", codigo.value);
-      await updateDoc(partidaRef, { estado: "iniciada" });
+      try {
+        const confirmar = await Swal.fire({
+          title: "¿Iniciar partida?",
+          text: "Una vez iniciada, no podrás agregar más jugadores.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Sí, iniciar",
+          cancelButtonText: "Cancelar"
+        });
+
+        if (confirmar.isConfirmed) {
+          const partidaRef = doc(db, "partidas", codigo.value);
+          await updateDoc(partidaRef, { estado: "iniciada" });
+        }
+      } catch (error) {
+        console.error("Error al iniciar la partida:", error);
+        Swal.fire("Error", "No se pudo iniciar la partida.", "error");
+      }
     };
 
     return { codigo, participantes, estado, iniciarPartida };

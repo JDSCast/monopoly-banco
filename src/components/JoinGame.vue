@@ -38,7 +38,7 @@
   import { useRouter } from "vue-router";
   import { getAuth, onAuthStateChanged } from "firebase/auth";
   import { getFirestore, doc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
-  import { useToast } from "vue-toastification";
+  import Swal from 'sweetalert2';
   
   export default {
     setup() {
@@ -48,7 +48,7 @@
       const partidaIniciada = ref(false);
       const jugadores = ref([]);
       const saldo = ref(1500);
-      const toast = useToast();
+     
       const auth = getAuth();
       const db = getFirestore();
       const router = useRouter();
@@ -85,7 +85,12 @@
           await updateDoc(partidaRef, { jugadores: [...partidaData.jugadores, nuevoJugador] });
   
           esperandoInicio.value = true;
-          toast.success("Te has unido a la partida.", { autoClose: 3000, theme: "light" });
+          Swal.Success({
+            title: '¡Partida iniciada!',
+            icon: 'success',
+            confirmButtonText: 'Entrar a partida.'
+          })
+        
           mensaje.value = "Te has unido a la partida. Esperando que el anfitrión inicie...";
   
           onSnapshot(partidaRef, (docSnap) => {
