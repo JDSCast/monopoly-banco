@@ -130,7 +130,10 @@ export default {
     const jugadorActual = ref(null);
 
     const isValidTransaction = computed(() => {
-      return monto.value > 0 && destino.value && tipo.value && jugadorActual.value.saldo >= monto.value;
+      if (tipo.value === "enviar") {
+        return monto.value > 0 && destino.value && jugadorActual.value.saldo >= monto.value;
+      }
+      return monto.value > 0;
     });
 
     const fetchPartida = () => {
