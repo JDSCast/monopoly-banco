@@ -6,10 +6,15 @@ import Main from '../pages/Main.vue';
 import Home from '../pages/Home.vue';
 import Login from '../pages/Login.vue';
 import Register from '../pages/Register.vue';
+import Cards from '../pages/Cards.vue';
+
 import CreateGame from '../components/CreateGame.vue';
 import JoinGame from '../components/JoinGame.vue';
 import GameBoard from '../components/GameBoard.vue';
 import Transaction from '../components/Transaction.vue';
+import Cardpropiedades from '../components/Cardpropiedas.vue';
+import CardTrain from '../components/CardTrain.vue';
+import CardServices from '../components/CardServices.vue'
 
 const routes = [
   { path: '/', name: 'main', component: Main },
@@ -20,6 +25,12 @@ const routes = [
   { path: '/join-game', name: 'join-game', component: JoinGame, meta: { requiresAuth: true } },
   { path: '/partida/:codigo', name: 'game-board', component: GameBoard, meta: { requiresAuth: true } },
   { path: '/transaction/:codigo', name: 'transaction', component: Transaction, meta: { requiresAuth: true } },
+
+  //cartas
+  { path: '/cards/:codigo', name: 'cards', component: Cards},
+  { path: '/propiedades/:codigo', name: 'propiedades', component: Cardpropiedades },
+  { path: '/estaciones/:codigo', name: 'estaciones', component: CardTrain },
+  { path: '/servicios/:codigo', name: 'servicios', component: CardServices },
 ];
 
 const router = createRouter({

@@ -28,6 +28,9 @@
             <button class="btn btn-primary btn-transacciones" @click="$router.push(`/transaction/${codigo}`)">
               Transacciones
             </button>
+            <button class="btn btn-success btn-transacciones" @click="$router.push(`/cards/${codigo}`)">
+              Propiedades
+            </button>
           </div>
         </div>
       </div>
