@@ -97,6 +97,11 @@ export default {
         });
 
         if (confirmar.isConfirmed) {
+            // Valida si el numero de jugadores es suficiente
+            if (participantes.value.length < 2 ) {
+              Swal.fire("Mínimo de jugadores no alcanzado", "Necesitas al menos 2 jugadores para iniciar la partida.", "error");
+              return;
+            }
           const partidaRef = doc(db, "partidas", codigo.value);
           await updateDoc(partidaRef, { estado: "iniciada" });
         }

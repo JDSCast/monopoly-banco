@@ -76,21 +76,38 @@ export default {
         const { displayName, uid } = user;
         const jugadorActual = displayName || "Jugador";
         const partidaData = partidaSnap.data();
-
+        //Valida si el usuario esta registrado en la partida
         if (partidaData.jugadores.some((j) => j.uid === uid)) {
-          Swal.fire("Info", "Ya estás en esta partida.", "info");
+          Swal.fire("Bienvenido de vuelta", "Bienvenido de vuelta a la sala. Puedes continuar jugando con tus compañeros.", "info");
           router.push("/partida/" + codigoIngresado.value);
           return;
         }
+
+        // Valida si la partida ya está iniciada
+        if (partidaData.estado === "iniciada") {
+          Swal.fire("Partida en curso", "La partida ya ha comenzado. No puedes unirte en este momento. Por favor, intenta unirte a otra sala o crea una nueva.", "warning");
+          return;
+        }
+        // Valida si la partida ya está llena
+        if (partidaData.jugadores.length >= 6) {
+          Swal.fire("Sala llena", "Lo sentimos, la sala ha alcanzado su capacidad máxima de jugadores.", "error");
+          return;
+        }
+        // Valida si la partida ya ha finalizado (sin implementar)
+        if (partidaData.estado === "finalizada") {
+          Swal.fire("Partida finalizada", "La partida actual ha finalizado. No puedes unirte a esta sala en este momento.", "info");
+          return;
+        }
+
 
         const nuevoJugador = { nombre: jugadorActual, saldo: 1500, uid };
         await updateDoc(partidaRef, { jugadores: [...partidaData.jugadores, nuevoJugador] });
 
         esperandoInicio.value = true;
         Swal.fire({
-            title: '¡Partida iniciada!',
+            title: 'Nuevo jugador en la sala',
             icon: 'success',
-            confirmButtonText: 'Entrar a partida.'
+            text: `¡Bienvenido a la sala ${codigoIngresado.value}! ${jugadorActual} se ha unido al juego.`,
           })
         
         mensaje.value = "Te has unido a la partida. Esperando que el anfitrión inicie...";
