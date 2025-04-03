@@ -10,60 +10,68 @@
               @click="volverAPartida"
             >
               Volver
-            </button>
+        </button>
 
-        <div class="card m-5 w-60 ">
-               
-                <div class="card-body p-3 row">
-                    <div class="card-header d-flex justify-content-center bg-white">
-                        <img src="/trebMp.jpg" alt="Tren" class="img-fluid w-50">
-                    </div>
-                    <h3 class="text-center">READING RAILROAD</h3>
+        <div v-for="estacion in estaciones" :key="estacion.nombre" class="card m-5 w-60">
+            <div class="card-body p-3 row">
+                <div class="card-header d-flex justify-content-center bg-white">
+                    <img src="/trebMp.jpg" alt="Tren" class="img-fluid w-50">
+                </div>
+                <h3 class="text-center">{{ estacion.nombre?.toUpperCase() || "Sin nombre" }}</h3>
 
-                    <ul class="list-unstyled mb-3 col-7">
-                        <li><strong>Rent:</strong></li> 
-                        <li><strong>If 2 stations are owned</strong></li>
-                        <li><strong>If 3 stations are owned <span class="text-success"></span>:</strong></li>
-                        <li><strong>If 4 stations are owned<span class="text-success"></span>:</strong> </li>
+                <ul class="list-unstyled mb-3 col-7">
+                    <li><strong>Renta base:</strong></li>
+                    <li><strong>Si se poseen 2 estaciones:</strong></li>
+                    <li><strong>Si se poseen 3 estaciones:</strong></li>
+                    <li><strong>Si se poseen 4 estaciones:</strong></li>
+                </ul>
+                <ul class="list-unstyled mb-3 col-5 text-end">
+                    <li><strong>M{{ estacion.renta?.baseRenta || 0 }}</strong></li>
+                    <li><strong>M{{ estacion.renta?.estacion2 || 0 }}</strong></li>
+                    <li><strong>M{{ estacion.renta?.estacion3 || 0 }}</strong></li>
+                    <li><strong>M{{ estacion.renta?.estacion4 || 0 }}</strong></li>
+                </ul>
 
+                <div class="card-footer row border-top bg-danger bg-opacity-25" style="margin: 0;">
+                    <ul class="list-unstyled mb-3 col-6">
+                        <li><strong>Hipoteca:</strong></li>
                     </ul>
-                    <ul class="list-unstyled mb-3 col-5 text-end">
-                        <li ><strong>M 25</strong></li> 
-                        <li><strong>M 50</strong></li>
-                        <li><strong>M 100<span></span></strong> </li>
-                        <li><strong>M 200<span></span></strong> </li>
+                    <ul class="list-unstyled mb-3 col-6 text-end">
+                        <li><strong>M{{ estacion.hipoteca }}</strong></li>
                     </ul>
+                </div>
             </div>
-            
         </div>
     </div>
 </template>
 
-<script>
-    import { useRoute, useRouter } from 'vue-router';
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { obtenerEstaciones } from '../firebase/obtenerPropiedades.js';
 
-    export default {
-    name: "MenuPropiedades",
-    setup() {
-        const route = useRoute();
-        const router = useRouter();
-        const codigo = route.params.codigo; // Capturar el parámetro de la URL
-            
-        const volverAPartida = () => {
-        router.push(`/cards/${codigo}`);
-        };
+const route = useRoute();
+const router = useRouter();
+const codigo = route.params.codigo;
 
-        return { codigo, volverAPartida } // Se quitó el punto y coma aquí
-    }
-    };
+const volverAPartida = () => {
+    router.push(`/cards/${codigo}`);
+};
+
+const estaciones = ref([]);
+
+onMounted(async () => {
+    estaciones.value = await obtenerEstaciones();
+    console.log("🚉 Estaciones cargadas:", estaciones.value);
+});
 </script>
 
 <style scoped>
 .red-bg {
   background-color: #FF0000; 
 }
-.orange-bg{
-    background-color: #f59119; 
+.orange-bg {
+  background-color: #f59119; 
 }
 </style>
 

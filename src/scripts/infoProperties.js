@@ -18,7 +18,7 @@ const propiedades = [
     costoEdificios: 50,
     hipoteca: 30,
     grupo: "Marrón",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 2,
     casa1: 10,
     casa2: 30,
@@ -33,7 +33,7 @@ const propiedades = [
     costoEdificios: 50,
     hipoteca: 30,
     grupo: "Marrón",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 4,
     casa1: 20,
     casa2: 60,
@@ -48,7 +48,7 @@ const propiedades = [
     costoEdificios: 50,
     hipoteca: 50,
     grupo: "Rosa",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 6,
     casa1: 30,
     casa2: 90,
@@ -63,7 +63,7 @@ const propiedades = [
     costoEdificios: 50,
     hipoteca: 50,
     grupo: "Rosa",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 6,
     casa1: 30,
     casa2: 90,
@@ -78,7 +78,7 @@ const propiedades = [
     costoEdificios: 50,
     hipoteca: 60,
     grupo: "Rosa",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 8,
     casa1: 40,
     casa2: 100,
@@ -93,7 +93,7 @@ const propiedades = [
     costoEdificios: 100,
     hipoteca: 70,
     grupo: "Morado",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 10,
     casa1: 50,
     casa2: 150,
@@ -108,7 +108,7 @@ const propiedades = [
     costoEdificios: 100,
     hipoteca: 70,
     grupo: "Morado",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 10,
     casa1: 50,
     casa2: 150,
@@ -123,7 +123,7 @@ const propiedades = [
     costoEdificios: 100,
     hipoteca: 80,
     grupo: "Morado",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 12,
     casa1: 60,
     casa2: 180,
@@ -138,7 +138,7 @@ const propiedades = [
     costoEdificios: 100,
     hipoteca: 90,
     grupo: "Naranja",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 14,
     casa1: 70,
     casa2: 200,
@@ -153,7 +153,7 @@ const propiedades = [
     costoEdificios: 100,
     hipoteca: 90,
     grupo: "Naranja",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 14,
     casa1: 70,
     casa2: 200,
@@ -168,7 +168,7 @@ const propiedades = [
     costoEdificios: 100,
     hipoteca: 100,
     grupo: "Naranja",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 16,
     casa1: 80,
     casa2: 220,
@@ -183,7 +183,7 @@ const propiedades = [
     costoEdificios: 150,
     hipoteca: 110,
     grupo: "Rojo",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 18,
     casa1: 90,
     casa2: 250,
@@ -198,7 +198,7 @@ const propiedades = [
     costoEdificios: 150,
     hipoteca: 110,
     grupo: "Rojo",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 18,
     casa1: 90,
     casa2: 250,
@@ -213,7 +213,7 @@ const propiedades = [
     costoEdificios: 150,
     hipoteca: 120,
     grupo: "Rojo",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 20,
     casa1: 100,
     casa2: 300,
@@ -228,7 +228,7 @@ const propiedades = [
     costoEdificios: 150,
     hipoteca: 130,
     grupo: "Amarillo",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 22,
     casa1: 110,
     casa2: 330,
@@ -243,7 +243,7 @@ const propiedades = [
     costoEdificios: 150,
     hipoteca: 130,
     grupo: "Amarillo",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 22,
     casa1: 110,
     casa2: 330,
@@ -258,7 +258,7 @@ const propiedades = [
     costoEdificios: 150,
     hipoteca: 140,
     grupo: "Amarillo",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 24,
     casa1: 120,
     casa2: 360,
@@ -273,7 +273,7 @@ const propiedades = [
     costoEdificios: 200,
     hipoteca: 150,
     grupo: "Verde",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 26,
     casa1: 130,
     casa2: 390,
@@ -288,7 +288,7 @@ const propiedades = [
     costoEdificios: 200,
     hipoteca: 150,
     grupo: "Verde",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 26,
     casa1: 130,
     casa2: 390,
@@ -303,7 +303,7 @@ const propiedades = [
     costoEdificios: 200,
     hipoteca: 160,
     grupo: "Verde",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 28,
     casa1: 150,
     casa2: 450,
@@ -318,7 +318,7 @@ const propiedades = [
     costoEdificios: 200,
     hipoteca: 175,
     grupo: "Azul",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 35,
     casa1: 175,
     casa2: 500,
@@ -333,7 +333,7 @@ const propiedades = [
     costoEdificios: 200,
     hipoteca: 200,
     grupo: "Azul",
-    tipo: "propiedad",
+    tipo: "calle",
     baseRenta: 50,
     casa1: 200,
     casa2: 600,
@@ -343,11 +343,88 @@ const propiedades = [
   }
 ];
 
-// Función para subir las propiedades a Firestore
+// Información de las estaciones
+const estaciones = [
+  {
+    nombre: "Reading Railroad",
+    tipo: "estacion",
+    precio: 200,
+    hipoteca: 100,
+    renta: {
+      baseRenta: 25,
+      estacion2: 50,
+      estacion3: 100,
+      estacion4: 200
+    }
+  },
+  {
+    nombre: "Pennsylvania Railroad",
+    tipo: "estacion",
+    precio: 200,
+    hipoteca: 100,
+    renta: {
+      baseRenta: 25,
+      estacion2: 50,
+      estacion3: 100,
+      estacion4: 200
+    }
+  },
+  {
+    nombre: "Short Line",
+    tipo: "estacion",
+    precio: 200,
+    hipoteca: 100,
+    renta: {
+      baseRenta: 25,
+      estacion2: 50,
+      estacion3: 100,
+      estacion4: 200
+    }
+  },
+  {
+    nombre: "B&O Railroad",
+    tipo: "estacion",
+    precio: 200,
+    hipoteca: 100,
+    renta: {
+      baseRenta: 25,
+      estacion2: 50,
+      estacion3: 100,
+      estacion4: 200
+    }
+  }
+];
+
+// Información de los servicios
+const servicios = [
+  {
+    nombre: "Electric Company",
+    tipo: "servicio",
+    precio: 150,
+    hipoteca: 75,
+    renta: {
+      baseRenta: 4,
+      setRenta: 10
+    }
+  },
+  {
+    nombre: "Water Works",
+    tipo: "servicio",
+    precio: 150,
+    hipoteca: 75,
+    renta: {
+      baseRenta: 4,
+      setRenta: 10
+    }
+  }
+];
+
+// Modificar la función para subir propiedades, estaciones y servicios
 const subirPropiedades = async () => {
   try {
     const refPropiedades = collection(db, "propiedades");
 
+    // Subir propiedades
     for (const propiedad of propiedades) {
       console.log("Subiendo propiedad:", propiedad.nombre);
 
@@ -356,18 +433,49 @@ const subirPropiedades = async () => {
       // Subir documento principal con color y demás campos
       const docRef = await addDoc(refPropiedades, restoDatos);
 
-      // Subcolección "renta" (sin color)
+      // Subcolección "renta"
       const subRefRenta = collection(docRef, "renta");
       await addDoc(subRefRenta, { baseRenta, casa1, casa2, casa3, casa4, rentaHotel });
 
       console.log(`Propiedad "${propiedad.nombre}" subida con subcolección "renta"`);
     }
 
-    console.log("¡Todas las propiedades fueron subidas correctamente!");
+    // Subir estaciones
+    for (const estacion of estaciones) {
+      console.log("Subiendo estación:", estacion.nombre);
+
+      const { renta, ...restoDatos } = estacion;
+
+      // Subir documento principal
+      const docRef = await addDoc(refPropiedades, restoDatos);
+
+      // Subcolección "renta"
+      const subRefRenta = collection(docRef, "renta");
+      await addDoc(subRefRenta, renta);
+
+      console.log(`Estación "${estacion.nombre}" subida con subcolección "renta"`);
+    }
+
+    // Subir servicios
+    for (const servicio of servicios) {
+      console.log("Subiendo servicio:", servicio.nombre);
+
+      const { renta, ...restoDatos } = servicio;
+
+      // Subir documento principal
+      const docRef = await addDoc(refPropiedades, restoDatos);
+
+      // Subcolección "renta"
+      const subRefRenta = collection(docRef, "renta");
+      await addDoc(subRefRenta, renta);
+
+      console.log(`Servicio "${servicio.nombre}" subido con subcolección "renta"`);
+    }
+
+    console.log("¡Todas las propiedades, estaciones y servicios fueron subidos correctamente!");
   } catch (error) {
-    console.error("Error al subir propiedades:", error);
+    console.error("Error al subir propiedades, estaciones y servicios:", error);
   }
 };
-
 
 subirPropiedades();
