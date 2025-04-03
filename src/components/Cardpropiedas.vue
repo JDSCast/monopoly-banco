@@ -76,7 +76,7 @@
               Casas / Hotel
             </button>
             <button class="btn btn-success btn-sm me-2 m-3 p-2" @click="Hipotecar(prop)">
-              {{ prop.hipoteca ? "Deshipotecar" : "Hipotecar" }}
+              {{ prop.hipotecada ? "Deshipotecar" : "Hipotecar" }}
             </button>
           </template>
 
@@ -205,10 +205,49 @@ const comprar = async (prop) => {
   }
 };
 
+const hipotecarPropiedad = async (prop) => {
+  if (!jugadorActual.value) return;
+
+  const jugadorRef = doc(db, `partidas/${codigo}/jugadores`, jugadorActual.value.uid);
+  const propiedadRef = doc(db, `partidas/${codigo}/jugadores_propiedades`, prop.id);
+
+  const nuevoSaldo = jugadorActual.value.saldo + prop.hipoteca;
+
+  await updateDoc(jugadorRef, { saldo: nuevoSaldo });
+  await updateDoc(propiedadRef, { hipotecada: true });
+
+  prop.hipotecada = true;
+  jugadorActual.value.saldo = nuevoSaldo;
+
+  Swal.fire("¡Hipoteca realizada!", `${prop.nombre} ahora está hipotecada.`, "success");
+};
+
+const deshipotecarPropiedad = async (prop) => {
+  if (!jugadorActual.value) return;
+
+  const costoDeshipoteca = calcularDeshipoteca(prop.hipoteca);
+  if (jugadorActual.value.saldo < costoDeshipoteca) {
+    return Swal.fire("Fondos insuficientes", "No tienes suficiente saldo para deshipotecar esta propiedad.", "error");
+  }
+
+  const jugadorRef = doc(db, `partidas/${codigo}/jugadores`, jugadorActual.value.uid);
+  const propiedadRef = doc(db, `partidas/${codigo}/jugadores_propiedades`, prop.id);
+
+  const nuevoSaldo = jugadorActual.value.saldo - costoDeshipoteca;
+
+  await updateDoc(jugadorRef, { saldo: nuevoSaldo });
+  await updateDoc(propiedadRef, { hipotecada: false });
+
+  prop.hipotecada = false;
+  jugadorActual.value.saldo = nuevoSaldo;
+
+  Swal.fire("¡Deshipoteca realizada!", `${prop.nombre} ahora está deshipotecada.`, "success");
+};
+
 const Hipotecar = async (prop) => {
-  if (!prop.hipoteca) {
+  if (!prop.hipotecada) {
     const result = await Swal.fire({
-      title: `¿Deseas Hipotecar la propiedad ${prop.nombre}?`,
+      title: `¿Deseas hipotecar la propiedad ${prop.nombre}?`,
       text: `Estás seguro que deseas hipotecar ${prop.nombre} por un precio de M${prop.hipoteca}`,
       icon: "warning",
       showCancelButton: true,
@@ -217,14 +256,14 @@ const Hipotecar = async (prop) => {
       cancelButtonText: "Cancelar",
       confirmButtonText: "Hipotecar",
     });
+
     if (result.isConfirmed) {
-      prop.hipoteca = true;
-      Swal.fire("¡Hipoteca realizada!", `${prop.nombre} ahora está hipotecada.`, "success");
+      await hipotecarPropiedad(prop);
     }
   } else {
     const result = await Swal.fire({
-      title: `¿Deseas Deshipotecar la propiedad ${prop.nombre}?`,
-      text: `Estás seguro que deseas Deshipotecar ${prop.nombre} por un precio de M${calcularDeshipoteca(prop.hipoteca)}`,
+      title: `¿Deseas deshipotecar la propiedad ${prop.nombre}?`,
+      text: `Estás seguro que deseas deshipotecar ${prop.nombre} por un precio de M${calcularDeshipoteca(prop.hipoteca)}`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -232,9 +271,9 @@ const Hipotecar = async (prop) => {
       cancelButtonText: "Cancelar",
       confirmButtonText: "Pagar Hipoteca",
     });
+
     if (result.isConfirmed) {
-      prop.hipoteca = false;
-      Swal.fire("¡Deshipoteca realizada!", `Propiedad: ${prop.nombre} ahora está deshipotecada.`, "success");
+      await deshipotecarPropiedad(prop);
     }
   }
 };
