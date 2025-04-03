@@ -25,12 +25,12 @@
             <h3 class="mb-3">{{ servicio.nombre.toUpperCase() }}</h3>
             <p>
               Si un jugador cae aquí, paga
-              {{ servicio.renta?.una_servicio || 4 }} veces el número mostrado en
+              {{ servicio.renta?.baseRenta || 4 }} veces el número mostrado en
               los dados.
             </p>
             <p>
               Si ambos servicios son poseídos, paga
-              {{ servicio.renta?.dos_servicios || 10 }} veces el número mostrado
+              {{ servicio.renta?.setRenta || 10 }} veces el número mostrado
               en los dados.
             </p>
           </div>

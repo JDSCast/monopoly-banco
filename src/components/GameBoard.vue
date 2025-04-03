@@ -40,7 +40,7 @@
   <script>
   import { ref, onMounted } from "vue";
   import { useRoute, useRouter } from "vue-router";
-  import { getFirestore, doc, onSnapshot, updateDoc} from "firebase/firestore";
+  import { getFirestore, doc, onSnapshot, collection, updateDoc } from "firebase/firestore";
   import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
   import Swal from "sweetalert2";
   import "../styles/gameBoard.css";
@@ -55,7 +55,6 @@
       const auth = getAuth();
       const db = getFirestore();
       
-  
       onMounted(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
           if (user) {
@@ -67,24 +66,32 @@
         return () => unsubscribeAuth();
       });
   
-      const cargarPartida = (userId) => {
+      const cargarPartida = async (userId) => {
         if (!codigo) return;
+  
         const partidaRef = doc(db, "partidas", codigo);
-        
-        const unsub = onSnapshot(partidaRef, (docSnap) => {
+  
+        // Escuchar cambios en el documento de la partida
+        const unsubPartida = onSnapshot(partidaRef, (docSnap) => {
           if (docSnap.exists()) {
             partida.value = docSnap.data();
-            jugadorActual.value = partida.value.jugadores.find(j => j.uid === userId);
-            
-            const ultimaTransaccion = partida.value.transacciones?.slice(-1)[0];
-            if (ultimaTransaccion && ultimaTransaccion.destino === jugadorActual.value?.nombre) {
-              //toast.info(`${ultimaTransaccion.origen} te transfirió $${ultimaTransaccion.monto}`, { autoClose: 5000, theme: "light" });
-            }
           } else {
             router.push("/inicio");
           }
         });
-        return () => unsub();
+  
+        // Escuchar cambios en la subcolección "jugadores"
+        const jugadoresRef = collection(db, `partidas/${codigo}/jugadores`);
+        const unsubJugadores = onSnapshot(jugadoresRef, (querySnapshot) => {
+          const jugadores = querySnapshot.docs.map((doc) => doc.data());
+          partida.value = { ...partida.value, jugadores };
+          jugadorActual.value = jugadores.find((j) => j.uid === userId);
+        });
+  
+        return () => {
+          unsubPartida();
+          unsubJugadores();
+        };
       };
   
       const handleBancarrota = async () => {
@@ -92,8 +99,7 @@
           Swal.fire("Error", "No se pudo identificar al jugador actual.", "error");
           return;
         }
-
-          // Mostrar una alerta simple de confirmación
+  
         const result = await Swal.fire({
           title: "Confirmar bancarrota",
           text: "Tu saldo será establecido en cero y saldrás del juego.",
@@ -104,22 +110,15 @@
           cancelButtonText: "Cancelar",
           confirmButtonText: "Aceptar",
         });
+  
         if (result.isConfirmed) {
-        // Establece el saldo en cero directamente
-        jugadorActual.value.saldo = 0;
-        // Actualiza la partida en Firestore
-        const partidaRef = doc(db, "partidas", codigo);
-        await updateDoc(partidaRef, {
-          jugadores: partida.value.jugadores.map(j =>
-            j.uid === jugadorActual.value.uid ? { ...j, saldo: 0 } : j
-          ),
-        });
-        
-        Swal.fire("Bancarrota", "Te has declarado en bancarrota. Tu saldo ahora es cero.", "success");
-        router.push("/inicio");
-      }
-
-    };
+          const jugadorRef = doc(db, `partidas/${codigo}/jugadores`, jugadorActual.value.uid);
+          await updateDoc(jugadorRef, { saldo: 0 });
+  
+          Swal.fire("Bancarrota", "Te has declarado en bancarrota. Tu saldo ahora es cero.", "success");
+          router.push("/inicio");
+        }
+      };
   
       const handleSalir = async () => {
         await signOut(auth);

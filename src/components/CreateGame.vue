@@ -22,7 +22,7 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import Swal from "sweetalert2";
 
@@ -58,8 +58,15 @@ export default {
           codigo: nuevoCodigo,
           estado: "No iniciada",
           uidCreador: user.uid,
-          usuarioCreador: userNombre,
-          jugadores: [{ uid: user.uid, nombre: userNombre, saldo: 1500 }]
+          usuarioCreador: userNombre
+        });
+
+        // Añade el jugador como un documento en la subcolección "jugadores"
+        const jugadorRef = doc(db, `partidas/${nuevoCodigo}/jugadores`, user.uid);
+        await setDoc(jugadorRef, {
+          uid: user.uid,
+          nombre: userNombre,
+          saldo: 1500
         });
 
         // Asignar valores locales
@@ -67,10 +74,9 @@ export default {
         participantes.value = [{ uid: user.uid, nombre: userNombre, saldo: 1500 }];
         estado.value = "No iniciada";
 
-        // Escuchar cambios en la partida
+        // Escuchar cambios en la subcolección "jugadores"
         onSnapshot(partidasRef, (docSnap) => {
           if (docSnap.exists()) {
-            participantes.value = docSnap.data().jugadores;
             estado.value = docSnap.data().estado;
 
             if (docSnap.data().estado === "iniciada") {
@@ -78,6 +84,13 @@ export default {
             }
           }
         });
+
+        onSnapshot(
+          collection(db, `partidas/${nuevoCodigo}/jugadores`),
+          (querySnapshot) => {
+            participantes.value = querySnapshot.docs.map((doc) => doc.data());
+          }
+        );
 
       } catch (error) {
         console.error("Error al crear la partida:", error);
@@ -97,11 +110,13 @@ export default {
         });
 
         if (confirmar.isConfirmed) {
-            // Valida si el numero de jugadores es suficiente
-            if (participantes.value.length < 2 ) {
-              Swal.fire("Mínimo de jugadores no alcanzado", "Necesitas al menos 2 jugadores para iniciar la partida.", "error");
-              return;
-            }
+          // Valida si el número de jugadores es suficiente
+          const jugadoresSnapshot = await getDocs(collection(db, `partidas/${codigo.value}/jugadores`));
+          if (jugadoresSnapshot.size < 2) {
+            Swal.fire("Mínimo de jugadores no alcanzado", "Necesitas al menos 2 jugadores para iniciar la partida.", "error");
+            return;
+          }
+
           const partidaRef = doc(db, "partidas", codigo.value);
           await updateDoc(partidaRef, { estado: "iniciada" });
         }

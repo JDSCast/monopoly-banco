@@ -36,7 +36,7 @@
 import { ref, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, getDocs } from "firebase/firestore";
 import Swal from "sweetalert2";
 
 export default {
@@ -75,57 +75,56 @@ export default {
 
         const { displayName, uid } = user;
         const jugadorActual = displayName || "Jugador";
-        const partidaData = partidaSnap.data();
-        //Valida si el usuario esta registrado en la partida
-        if (partidaData.jugadores.some((j) => j.uid === uid)) {
-          Swal.fire("Bienvenido de vuelta", "Bienvenido de vuelta a la sala. Puedes continuar jugando con tus compañeros.", "info");
+
+        const jugadoresRef = collection(db, `partidas/${codigoIngresado.value}/jugadores`);
+        const jugadorDocRef = doc(jugadoresRef, uid);
+        const jugadorSnap = await getDoc(jugadorDocRef);
+
+        // Verifica si el jugador ya está registrado en la partida
+        if (jugadorSnap.exists()) {
+          Swal.fire("Bienvenido de vuelta", "Ya estás registrado en esta partida.", "info");
           router.push("/partida/" + codigoIngresado.value);
           return;
         }
 
         // Valida si la partida ya está iniciada
-        if (partidaData.estado === "iniciada") {
-          Swal.fire("Partida en curso", "La partida ya ha comenzado. No puedes unirte en este momento. Por favor, intenta unirte a otra sala o crea una nueva.", "warning");
+        if (partidaSnap.data().estado === "iniciada") {
+          Swal.fire("Partida en curso", "La partida ya ha comenzado. No puedes unirte en este momento.", "warning");
           return;
         }
+
         // Valida si la partida ya está llena
-        if (partidaData.jugadores.length >= 6) {
-          Swal.fire("Sala llena", "Lo sentimos, la sala ha alcanzado su capacidad máxima de jugadores.", "error");
-          return;
-        }
-        // Valida si la partida ya ha finalizado (sin implementar)
-        if (partidaData.estado === "finalizada") {
-          Swal.fire("Partida finalizada", "La partida actual ha finalizado. No puedes unirte a esta sala en este momento.", "info");
+        const jugadoresSnapshot = await getDocs(jugadoresRef);
+        if (jugadoresSnapshot.size >= 6) {
+          Swal.fire("Sala llena", "La sala ha alcanzado su capacidad máxima de jugadores.", "error");
           return;
         }
 
-
-        const nuevoJugador = { nombre: jugadorActual, saldo: 1500, uid };
-        await updateDoc(partidaRef, { jugadores: [...partidaData.jugadores, nuevoJugador] });
+        // Añade al jugador como un documento en la subcolección "jugadores"
+        await setDoc(jugadorDocRef, { nombre: jugadorActual, saldo: 1500, uid });
 
         esperandoInicio.value = true;
         Swal.fire({
-            title: 'Nuevo jugador en la sala',
-            icon: 'success',
-            text: `¡Bienvenido a la sala ${codigoIngresado.value}! ${jugadorActual} se ha unido al juego.`,
-          })
-        
+          title: "Nuevo jugador en la sala",
+          icon: "success",
+          text: `¡Bienvenido a la sala ${codigoIngresado.value}! ${jugadorActual} se ha unido al juego.`,
+        });
+
         mensaje.value = "Te has unido a la partida. Esperando que el anfitrión inicie...";
 
         // Escuchar cambios en la partida
         onSnapshot(partidaRef, (docSnap) => {
           if (docSnap.exists()) {
-            const data = docSnap.data();
-            jugadores.value = data.jugadores;
-
-            const miJugador = data.jugadores.find((j) => j.uid === uid);
-            if (miJugador) saldo.value = miJugador.saldo;
-
-            if (data.estado === "iniciada") {
+            if (docSnap.data().estado === "iniciada") {
               partidaIniciada.value = true;
               esperandoInicio.value = false;
             }
           }
+        });
+
+        // Escuchar cambios en la subcolección "jugadores"
+        onSnapshot(jugadoresRef, (querySnapshot) => {
+          jugadores.value = querySnapshot.docs.map((doc) => doc.data());
         });
       } catch (error) {
         console.error("Error al unirse a la partida:", error);

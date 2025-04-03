@@ -108,12 +108,9 @@
 <script>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getFirestore, doc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { getFirestore, doc, updateDoc, onSnapshot, collection, setDoc, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import Swal from 'sweetalert2';
-
-
-
 
 export default {
   name: 'Transaction',
@@ -140,36 +137,39 @@ export default {
     });
 
     const validarMonto = () => {
-    
-    monto.value = monto.value.replace(/[^0-9]/g, "");
+      monto.value = monto.value.replace(/[^0-9]/g, "");
     };
-    const fetchPartida = () => {
-      const partidaRef = doc(db, "partidas", codigo);
-      const unsub = onSnapshot(partidaRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const partidaData = docSnap.data();
-          partida.value = partidaData;
-          transacciones.value = partidaData.transacciones || [];
 
-          jugadorActual.value = partidaData.jugadores.find(
-            (j) => j.uid === usuarioActual?.uid
-          );
-        }
+    const fetchPartida = async () => {
+      const jugadoresRef = collection(db, `partidas/${codigo}/jugadores`);
+      const unsubJugadores = onSnapshot(jugadoresRef, (querySnapshot) => {
+        const jugadores = querySnapshot.docs.map((doc) => doc.data());
+        partida.value = { ...partida.value, jugadores };
+        jugadorActual.value = jugadores.find((j) => j.uid === usuarioActual?.uid);
       });
-      return unsub;
+
+      const transaccionesRef = collection(db, `partidas/${codigo}/transacciones`);
+      const unsubTransacciones = onSnapshot(transaccionesRef, (querySnapshot) => {
+        transacciones.value = querySnapshot.docs.map((doc) => doc.data());
+      });
+
+      return () => {
+        unsubJugadores();
+        unsubTransacciones();
+      };
     };
 
     const handleConfirmar = async () => {
       if (!isValidTransaction.value) {
         Swal.fire({
-        icon: 'error',
-        title: 'Transacción no válida',
-        text: 'Revisa los campos e intenta de nuevo.',
-        confirmButtonText: 'OK'
-      });
-      //toast.error("Transacción no válida.", { autoClose: 3000 });
+          icon: "error",
+          title: "Transacción no válida",
+          text: "Revisa los campos e intenta de nuevo.",
+          confirmButtonText: "OK",
+        });
         return;
       }
+
       const montoNum = parseFloat(monto.value);
       let nuevaTransaccion = {
         id: Date.now(),
@@ -181,54 +181,73 @@ export default {
       };
 
       if (tipo.value === "enviar") {
-        const jugadorDestino = partida.value?.jugadores.find(j => j.uid === destino.value);
-        if (!jugadorDestino) {
-          Swal.fire({
-          icon: 'error',
-          title: 'Transacción no válida',
-          text: 'Revisa los campos e intenta de nuevo.',
-          confirmButtonText: 'OK'
-        });
+        const jugadorDestinoRef = doc(db, `partidas/${codigo}/jugadores`, destino.value);
+        const jugadorDestinoSnap = await getDoc(jugadorDestinoRef);
 
+        if (!jugadorDestinoSnap.exists()) {
+          Swal.fire({
+            icon: "error",
+            title: "Transacción no válida",
+            text: "El jugador destino no existe.",
+            confirmButtonText: "OK",
+          });
           return;
         }
+
+        const jugadorDestino = jugadorDestinoSnap.data();
 
         if (jugadorActual.value.saldo < montoNum) {
           Swal.fire({
-          icon: 'error',
-          title: 'Saldo insuficiente',
-          text: 'No tienes suficiente dinero para esta transacción.',
-          confirmButtonText: 'OK'
+            icon: "error",
+            title: "Saldo insuficiente",
+            text: "No tienes suficiente dinero para esta transacción.",
+            confirmButtonText: "OK",
           });
-
           return;
         }
-        jugadorActual.value.saldo -= montoNum;
-        jugadorDestino.saldo += montoNum;
+
+        // Actualizar saldos
+        const jugadorActualRef = doc(db, `partidas/${codigo}/jugadores`, jugadorActual.value.uid);
+        await updateDoc(jugadorActualRef, { saldo: jugadorActual.value.saldo - montoNum });
+
+        await updateDoc(jugadorDestinoRef, { saldo: jugadorDestino.saldo + montoNum });
+
         nuevaTransaccion.destino = jugadorDestino.nombre;
       } else if (tipo.value === "cobrar") {
-        jugadorActual.value.saldo += montoNum;
+        const jugadorActualRef = doc(db, `partidas/${codigo}/jugadores`, jugadorActual.value.uid);
+        await updateDoc(jugadorActualRef, { saldo: jugadorActual.value.saldo + montoNum });
+
         nuevaTransaccion.destino = "Banco";
       } else if (tipo.value === "pagar") {
         if (jugadorActual.value.saldo < montoNum) {
-          toast.error("Saldo insuficiente para pagar al banco.", { autoClose: 3000 });
+          Swal.fire({
+            icon: "error",
+            title: "Saldo insuficiente",
+            text: "No tienes suficiente dinero para esta transacción.",
+            confirmButtonText: "OK",
+          });
           return;
         }
-        jugadorActual.value.saldo -= montoNum;
+
+        const jugadorActualRef = doc(db, `partidas/${codigo}/jugadores`, jugadorActual.value.uid);
+        await updateDoc(jugadorActualRef, { saldo: jugadorActual.value.saldo - montoNum });
+
         nuevaTransaccion.destino = "Banco";
       }
-      const jugadoresDisponibles = computed(() => {
-      return partida.value?.jugadores.filter(j => j.uid !== jugadorActual.value?.uid) || [];
-      });
 
-      const partidaRef = doc(db, "partidas", codigo);
-      await updateDoc(partidaRef, {
-        jugadores: partida.value.jugadores,
-        transacciones: [...transacciones.value, nuevaTransaccion],
-      });
+      // Añadir la transacción a la subcolección "transacciones"
+      const transaccionesRef = collection(db, `partidas/${codigo}/transacciones`);
+      const nuevaTransaccionRef = doc(transaccionesRef, nuevaTransaccion.id.toString());
+      await setDoc(nuevaTransaccionRef, nuevaTransaccion);
 
       monto.value = "";
       destino.value = "";
+      Swal.fire({
+        icon: "success",
+        title: "Transacción realizada",
+        text: "La transacción se ha realizado con éxito.",
+        confirmButtonText: "OK",
+      });
       router.push(`/partida/${codigo}`);
     };
 
@@ -256,7 +275,6 @@ export default {
 };
 </script>
 
-  <style scoped>
+<style scoped>
 @import "../styles/transaction.css";
-  </style>
-  
+</style>
