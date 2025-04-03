@@ -47,6 +47,12 @@
                         <li><strong>M{{ (estacion.hipoteca*0.1)+estacion.hipoteca }}</strong></li>
                     </ul>
             </div>
+            <button class="btn btn-success btn-sm me-2 m-3 p-2" @click="comprar(estacion)" v-if= "!estacion.propietario  ">
+                {{ estacion.propietario ? "Pagar Renta" : "Comprar" }}
+            </button>
+            <button class="btn btn-success btn-sm me-2 m-3 p-2" @click="Hipotecar(estacion)" v-if="estacion.propietario === `Jugador 1`">
+                {{ estacion.hipoteca ? "Hipotecar" : "Deshipotecar" }}
+            </button>
         </div>
     </div>
 </template>
@@ -55,6 +61,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { obtenerEstaciones } from '../firebase/obtenerPropiedades.js';
+import Swal from "sweetalert2";
 
 const route = useRoute();
 const router = useRouter();
@@ -70,6 +77,79 @@ onMounted(async () => {
     estaciones.value = await obtenerEstaciones();
     console.log("🚉 Estaciones cargadas:", estaciones.value);
 });
+
+//funcion para comprar la estacion
+const comprar = async (prop) => {
+
+
+    if (!prop.propietario) {
+
+        const result = await Swal.fire({
+        title: `¿Deseas comprar la propiedad ${prop.nombre}?`,
+        text: `Estás seguro que deseas comprar ${prop.nombre} para aumentar tus ingresos`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        cancelButtonText: "Cancelar",
+        confirmButtonText: "Comprar",
+        });
+
+        if (result.isConfirmed) {
+            prop.propietario = "Jugador 1"; 
+            Swal.fire("¡Compra realizada!", `${prop.nombre} ahora es tuya.`, "success");
+        }
+
+    } 
+};
+
+
+//funcion para hipotecar
+const Hipotecar = async (prop) => {
+    //recordar borrar esto es para pruebas para visualizar las alertas.
+    prop.hipoteca =false;
+
+    if (!prop.hipoteca) {
+
+        const result = await Swal.fire({
+            title: `¿Deseas liberar la hipoteca de la propiedad ${prop.nombre}?`,
+            text: `Estás seguro que deseas liberar la hipoteca ${prop.nombre} por un precio de M${prop.hipoteca}`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            cancelButtonText: "Cancelar",
+            confirmButtonText: "Hipotecar",
+        });
+
+        if (result.isConfirmed) {
+            prop.hipoteca = true;
+            prop.propietario = "Jugador 1"; 
+            Swal.fire("¡Hipoteca realizada!", `${prop.nombre} ahora esta hipotecada.`, "success");
+        }
+
+    } else{
+
+        const result = await Swal.fire({
+            title: `¿Deseas Deshipotecar la propiedad ${prop.nombre}?`,
+            text: `Estás seguro que deseas Deshipotecar ${prop.nombre} por un precio de M${prop.Deshipoteca}`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            cancelButtonText: "Cancelar",
+            confirmButtonText: "Pagar Hipoteca",
+        });
+
+        if (result.isConfirmed) {
+                prop.hipoteca = false;
+                prop.propietario = "Jugador 1"; 
+                Swal.fire("¡Deshipoteca realizada !", `Propiedad: ${prop.nombre} ahora esta deshipotecada.`, "success");
+        }
+
+    } 
+};
+
 </script>
 
 <style scoped>
