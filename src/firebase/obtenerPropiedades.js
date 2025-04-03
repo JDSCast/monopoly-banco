@@ -29,13 +29,26 @@ export const obtenerPropiedades = async () => {
 };
 
 export const obtenerEstaciones = async () => {
-  const estaciones = [];
-  const querySnapshot = await getDocs(collection(db, "propiedades"));
-  querySnapshot.forEach((doc) => {
-    const data = doc.data();
-    if (data.tipo === "estacion") {
-      estaciones.push({ id: doc.id, ...data });
-    }
-  });
-  return estaciones;
+  try {
+    const estaciones = await Promise.all(
+      (await getDocs(collection(db, "propiedades"))).docs
+        .filter((doc) => doc.data().tipo === "estacion")
+        .map(async (doc) => {
+          const data = { id: doc.id, ...doc.data() };
+
+          const rentaSnap = await getDocs(collection(doc.ref, "renta"));
+          let renta = {};
+          rentaSnap.forEach((rentaDoc) => {
+            renta = rentaDoc.data(); // usualmente es solo uno
+          });
+
+          return { ...data, renta };
+        })
+    );
+
+    return estaciones;
+  } catch (error) {
+    console.error("❌ Error al obtener estaciones:", error);
+    return [];
+  }
 };

@@ -12,7 +12,7 @@
               Volver
         </button>
 
-        <div v-for="estacion in estaciones" :key="estacion.nombre" class="card m-5 w-60">
+        <div v-for="estacion in estaciones" :key="estacion.id" class="card m-5 w-60">
             <div class="card-body p-3 row">
                 <div class="card-header d-flex justify-content-center bg-white">
                     <img src="/trebMp.jpg" alt="Tren" class="img-fluid w-50">
