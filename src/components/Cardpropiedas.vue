@@ -4,9 +4,10 @@
       <h1 class="text-center">Calles del Monopoly</h1>
     </div>
 
-    <button type="button" class="btn btn-secondary mb-4" @click="volverAPartida">
-      Volver
-    </button>
+        <button type="button" class="btn fixed-bottom btn-warning mb-4 w-25 m-4 p-2 shadow-lg fs-4 fw-bold rounded-pill" @click="volverAPartida">
+            Volver
+        </button>
+    
 
     <div v-for="prop in propiedades" :key="prop.id" class="card m-4 w-75">
       <div class="card-header text-center p-4" :style="{ backgroundColor: prop.color, color: 'white' }">
@@ -35,20 +36,20 @@
         </ul>
       </div>
 
-      <div class="card-footer row border-top" style="margin: 0;">
-        <ul class="list-unstyled mb-3 col-6">
+      <div class="row border-top" style="margin: 0;">
+        <ul class="list-unstyled mb-3 col-7">
           <li><strong>Casa cuesta:</strong></li>
           <li><strong>Hotel cuesta:</strong></li>
           <li><strong>Precio:</strong></li>
         </ul>
-        <ul class="list-unstyled mb-3 col-6 text-end">
+        <ul class="list-unstyled mb-3 col-5 text-end">
           <li><strong>M{{ prop.costoEdificios }}</strong></li>
           <li><strong>M{{ prop.costoEdificios }}</strong></li>
           <li><strong>M{{ prop.precio }}</strong></li>
         </ul>
       </div>
 
-      <div class="card-footer row border-top bg-danger bg-opacity-25" style="margin: 0;">
+      <div class=" row border-top bg-danger bg-opacity-25" style="margin: 0;">
         <ul class="list-unstyled mb-3 col-6">
           <li><strong>Hipoteca:</strong></li>
           <li><strong>Deshipoteca:</strong></li>

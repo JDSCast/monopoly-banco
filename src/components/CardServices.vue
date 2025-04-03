@@ -4,9 +4,9 @@
         <h1 class="text-center">Servicios del Monopoly</h1>
       </div>
   
-      <button type="button" class="btn btn-secondary mb-4" @click="volverAPartida">
-        Volver
-      </button>
+      <button type="button" class="btn fixed-bottom btn-warning mb-4 w-25 m-4 p-2 shadow-lg fs-4 fw-bold rounded-pill" @click="volverAPartida">
+            Volver
+        </button>
   
       <div v-if="servicios.length > 0">
         <div
