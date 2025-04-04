@@ -89,7 +89,7 @@
           </template>
 
           <template v-else>
-            <button class="btn btn-danger btn-sm me-2 m-3 p-2" @click="pagarRenta(prop)">
+            <button class="btn btn-danger btn-sm me-2 m-3 p-2 fw-bold" @click="pagarRenta(prop)"v-if="!prop.hipotecada">    
               Pagar Renta
             </button>
           </template>
@@ -150,10 +150,6 @@ const calcularDeshipoteca = (hipoteca) => {
 };
 
 const pagarRenta = async (prop) => {
-  if (prop.hipotecada) {
-    return Swal.fire("Propiedad hipotecada", "No se puede cobrar renta en una propiedad hipotecada.", "info");
-  }
-
   const nivelRenta = prop.nivelRenta || "baseRenta";
   let renta = prop.renta?.[nivelRenta] || 0;
 
