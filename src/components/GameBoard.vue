@@ -1,41 +1,55 @@
 <template>
-    <div class="container-game">
-      <div class="card card-game">
-        <div class="card-body-game">
-          <h4>{{ jugadorActual?.nombre || "Jugador" }}</h4>
-          <h4 class="text-center">${{ jugadorActual?.saldo || 0 }}</h4>
-          <hr />
-          
-          <h5 class="text-center">Lista de participantes</h5>
-          <ul class="list-group">
-            <li v-for="(p, index) in partida?.jugadores?.filter(p => p.uid !== jugadorActual?.uid)" 
-                :key="index" class="list-group-item d-flex justify-content-between">
-              {{ p.nombre }} <span>${{ p.saldo }}</span>
-            </li>
-          </ul>
-  
-          <div class="d-flex justify-content-between mt-3 gap-2">
-            <div class="dropdown">
-              <button class="btn btn-secondary btn-despegable dropdown-toggle" type="button" 
-                      data-bs-toggle="dropdown" aria-expanded="false">
-                <BsBoxArrowRight />
+  <div class="container vh-100 d-flex align-items-center justify-content-center">
+    <div class="row w-100 flex-column flex-md-row align-items-center ">
+
+      <!-- Columna de la imagen -->
+      <div class="col-md-5 d-flex justify-content-center mb-3 mb-md-0" >
+        <img src="/Logo_monopoly.jpg" alt="Sr. Monopoly" class="w-50"  />
+      </div>
+
+      <!-- Columna de la tarjeta con la información del jugador -->
+      <div class="col-md-7 d-flex justify-content-center ">
+        <div class="card card-game p-4 w-100 shadow-lg">
+          <div class="card-body-game text-center">
+            <h4>{{ jugadorActual?.nombre || "Jugador" }}</h4>
+            <h4 class="text-center fw-bold">${{ jugadorActual?.saldo || 0 }}</h4>
+            <hr />
+
+            <h5 class="text-center">Lista de participantes</h5>
+            <ul class="list-group">
+              <li v-for="(p, index) in partida?.jugadores?.filter(p => p.uid !== jugadorActual?.uid)" 
+                  :key="index" 
+                  class="list-group-item d-flex justify-content-between">
+                {{ p.nombre }} <span>${{ p.saldo }}</span>
+              </li>
+            </ul>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-between mt-3 gap-2 flex-column flex-sm-row ">
+              <button class="btn btn-primary w-100 w-sm-auto m-0" @click="$router.push(`/transaction/${codigo}`)">
+                Transacciones
               </button>
-              <ul class="dropdown-menu">
-                <li><button class="dropdown-item" @click="handleBancarrota">Bancarrota</button></li>
-                <li><button class="dropdown-item" @click="handleSalir">Salir del juego</button></li>
-              </ul>
+              <button class="btn btn-success w-100 w-sm-auto m-0" @click="$router.push(`/cards/${codigo}`)">
+                Propiedades
+              </button>
+              <div class="dropdown ">
+                <button class="btn text-center btn-secondary dropdown-toggle w-70" type="button" 
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                  <BsBoxArrowRight />
+                </button>
+                <ul class="dropdown-menu ">
+                  <li><button class="dropdown-item" @click="handleBancarrota">Bancarrota</button></li>
+                  <li><button class="dropdown-item" @click="handleSalir">Salir del juego</button></li>
+                </ul>
+              </div>
             </div>
-            <button class="btn btn-primary btn-transacciones" @click="$router.push(`/transaction/${codigo}`)">
-              Transacciones
-            </button>
-            <button class="btn btn-success btn-transacciones" @click="$router.push(`/cards/${codigo}`)">
-              Propiedades
-            </button>
           </div>
         </div>
       </div>
+
     </div>
-  </template>
+  </div>
+</template>
   
   <script>
   import { ref, onMounted } from "vue";

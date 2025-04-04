@@ -9,8 +9,16 @@
     </button>
 
     <div v-for="prop in propiedades" :key="prop.id" class="card m-4 w-75">
-      <div class="card-header text-center p-4" :style="{ backgroundColor: prop.color, color: 'white' }">
-        <h3>{{ prop.nombre?.toUpperCase() || "Sin nombre" }}</h3>
+      <div class="all-card text-center p-4" :style="{ backgroundColor: prop.color, color: 'white' }">
+        <div class="title-card">
+          <h3 class="text-title">{{ prop.nombre?.toUpperCase() || "Sin nombre" }}</h3>
+        </div>
+        <div class="price-card">
+          <div class="center-card">
+            <h5 class="text-subtitle">precio:</h5>
+            <h4 class="text-subtitle"><strong>M{{ prop.precio }}</strong></h4>
+          </div>
+        </div>
       </div>
 
       <div class="card-body p-3 row">
@@ -39,12 +47,10 @@
         <ul class="list-unstyled mb-3 col-7">
           <li><strong>Casa cuesta:</strong></li>
           <li><strong>Hotel cuesta:</strong></li>
-          <li><strong>Precio:</strong></li>
         </ul>
         <ul class="list-unstyled mb-3 col-5 text-end">
           <li><strong>M{{ prop.costoEdificios }}</strong></li>
           <li><strong>M{{ prop.costoEdificios }}</strong></li>
-          <li><strong>M{{ prop.precio }}</strong></li>
         </ul>
       </div>
 
@@ -131,6 +137,17 @@ onMounted(async () => {
     propiedades.value = baseProps.map((prop) => {
       const encontrada = dataJugProp.find((p) => p.id === prop.id);
       return encontrada ? { ...prop, propietario: encontrada.jugadorNombre, hipotecada: encontrada.hipotecada, jugadorId: encontrada.jugadorId, nivelRenta: encontrada.nivelRenta } : prop;
+    });
+
+    // Ordenamos primero por precio y luego por color
+    propiedades.value.sort((a, b) => {
+      // Primero comparamos por precio (de menor a mayor)
+      const precioComparison = a.precio - b.precio;
+      if (precioComparison !== 0) {
+        return precioComparison;
+      }
+      // Si los precios son iguales, comparamos por color
+      return a.color.localeCompare(b.color);
     });
   });
 
@@ -498,5 +515,57 @@ const venderPropiedad = async (prop) => {
 <style scoped>
 .red-bg {
   background-color: #FF0000;
+}
+.all-card {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+}
+.title-card {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  flex: 1;
+  width: 70%;
+}
+.text-title{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+.price-card {
+  display: flex;
+  margin: 5px;
+  flex: 1;
+  width: 20%;
+  flex-direction: column;
+  justify-content: flex-end;
+  text-align: flex-end;
+}
+.center-card{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+}
+.text-subtitle{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 45%;
+  width: 30%;
+  text-align: center;
+}
+
+/* Estilo para los títulos de grupo de colores */
+h3.text-center {
+  padding: 10px;
+  border-bottom: 2px solid currentColor;
+  display: inline-block;
+  margin-bottom: 20px;
+  font-weight: bold;
 }
 </style>
