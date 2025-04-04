@@ -7,6 +7,8 @@ import Home from '../pages/Home.vue';
 import Login from '../pages/Login.vue';
 import Register from '../pages/Register.vue';
 import Cards from '../pages/Cards.vue';
+import Comercio from '../pages/Comercio.vue'
+import CrearComercio from '../pages/CrearComercio.vue'
 
 import CreateGame from '../components/CreateGame.vue';
 import JoinGame from '../components/JoinGame.vue';
@@ -15,6 +17,7 @@ import Transaction from '../components/Transaction.vue';
 import Cardpropiedades from '../components/Cardpropiedas.vue';
 import CardTrain from '../components/CardTrain.vue';
 import CardServices from '../components/CardServices.vue'
+
 
 const routes = [
   { path: '/', name: 'main', component: Main },
@@ -31,6 +34,12 @@ const routes = [
   { path: '/propiedades/:codigo', name: 'propiedades', component: Cardpropiedades },
   { path: '/estaciones/:codigo', name: 'estaciones', component: CardTrain },
   { path: '/servicios/:codigo', name: 'servicios', component: CardServices },
+
+  //Rutas de comercio
+  //9575
+  { path: '/comercio/:codigo', name: 'MenuComercio', component: Comercio, meta: { requiresAuth: true } },
+  { path: '/crearcomercio/:codigo', name: 'CrearComercio', component: CrearComercio, meta: { requiresAuth: true } },
+
 ];
 
 const router = createRouter({

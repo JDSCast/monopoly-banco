@@ -65,3 +65,21 @@
 .dropdown-item:hover {
     background: #f0f0f0;
 }
+
+
+@media (max-width: 1000px) {
+    .img-espacio{
+        display: flex;
+        width: 80%;
+        height: 70%;
+        margin: 1px;
+        padding: 0px;
+    }
+    .card-game{
+        margin-top: -40px;
+    }
+    .card-body-game{
+        margin: 0px;
+        padding-top: 0px;
+    }
+}

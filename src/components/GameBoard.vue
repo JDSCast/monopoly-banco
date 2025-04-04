@@ -3,8 +3,8 @@
     <div class="row w-100 flex-column flex-md-row align-items-center ">
 
       <!-- Columna de la imagen -->
-      <div class="col-md-5 d-flex justify-content-center mb-3 mb-md-0" >
-        <img src="/Logo_monopoly.jpg" alt="Sr. Monopoly" class="w-50"  />
+      <div class="col-md-5 d-flex justify-content-center mb-3 mb-md-0 img-espacio" >
+        <img src="/Logo_monopoly.jpg" alt="Sr. Monopoly" class="w-50 img-espacio"/>
       </div>
 
       <!-- Columna de la tarjeta con la información del jugador -->
@@ -26,18 +26,23 @@
 
             <!-- Botones -->
             <div class="d-flex justify-content-between mt-3 gap-2 flex-column flex-sm-row ">
-              <button class="btn btn-primary w-100 w-sm-auto m-0" @click="$router.push(`/transaction/${codigo}`)">
-                Transacciones
-              </button>
-              <button class="btn btn-success w-100 w-sm-auto m-0" @click="$router.push(`/cards/${codigo}`)">
-                Propiedades
-              </button>
+              <div class="">
+                <button class="btn btn-warning w-100 w-sm-auto mt-2" @click="$router.push(`/comercio/${codigo}`)">
+                  Comercio
+                </button>
+                <button class="btn btn-primary w-100 w-sm-auto mt-2" @click="$router.push(`/transaction/${codigo}`)">
+                  Transacciones
+                </button>
+                <button class="btn btn-success w-100 w-sm-auto mt-2" @click="$router.push(`/cards/${codigo}`)">
+                  Propiedades
+                </button>
+              </div>
               <div class="dropdown ">
-                <button class="btn text-center btn-secondary dropdown-toggle w-70" type="button" 
+                <button class="m-2 btn text-center btn-secondary dropdown-toggle w-70 " type="button" 
                         data-bs-toggle="dropdown" aria-expanded="false">
                   <BsBoxArrowRight />
                 </button>
-                <ul class="dropdown-menu ">
+                <ul class="dropdown-menu">
                   <li><button class="dropdown-item" @click="handleBancarrota">Bancarrota</button></li>
                   <li><button class="dropdown-item" @click="handleSalir">Salir del juego</button></li>
                 </ul>
