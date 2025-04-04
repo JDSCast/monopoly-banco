@@ -403,7 +403,7 @@ const mejorarRenta = async (prop) => {
     title: `¿Mejorar renta?`,
     html: `
       <p>Compra más edificios (casas/hoteles) para mejorar la renta de la propiedad</p>
-      <p><strong>Renta actual:</strong> M${prop.renta[nivelActual] * 2}</p>
+      <p><strong>Renta actual:</strong> M${nivelActual === "baseRenta"? prop.renta[nivelActual] * 2 : prop.renta[nivelActual]}</p>
       <p><strong>Si compras otro edificio:</strong style="color: green; font-weight: bold;"> Tu renta pasará a M${prop.renta[siguienteNivel]}.</p>
       <p><strong>Costo:</strong style="color: red;"> M${costo}</p>
     `,
@@ -448,7 +448,7 @@ const venderEdificio = async (prop) => {
     html: `
       <p>¿Estás seguro de que deseas vender un edificio de ${prop.nombre}?</p>
       <p><strong>Ganancia:</strong> M${ganancia}</p>
-      <p><strong>Valor de renta después de la venta:</strong> M${nivelAnterior==="baseRenta"? prop.renta[nivelAnterior] * 2: nivelAnterior}</p>
+      <p><strong>Valor de renta después de la venta:</strong> M${nivelAnterior==="baseRenta"? prop.renta[nivelAnterior] * 2: nivelAnteriory}</p>
     `,
     icon: "warning",
     showCancelButton: true,
