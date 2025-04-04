@@ -72,9 +72,17 @@
           </button>
 
           <template v-else-if="prop.propietario === jugadorActual?.nombre">
-            <button class="btn btn-primary btn-sm me-2 m-3 p-2" @click="manejarCasasHotel(prop)">
-              Casas / Hotel
-            </button>
+            <template v-if="!prop.hipotecada">
+              <button class="btn btn-primary btn-sm me-2 m-3 p-2" @click="manejarCasasHotel(prop)">
+                Comprar edificios
+              </button>
+              <button
+                class="btn btn-danger btn-sm me-2 m-3 p-2"
+                @click="prop.nivelRenta === 'baseRenta' ? venderPropiedad(prop) : venderEdificio(prop)"
+              >
+                {{ prop.nivelRenta === 'baseRenta' ? "Vender propiedad" : "Vender edificio" }}
+              </button>
+            </template>
             <button class="btn btn-success btn-sm me-2 m-3 p-2" @click="Hipotecar(prop)">
               {{ prop.hipotecada ? "Deshipotecar" : "Hipotecar" }}
             </button>
@@ -115,12 +123,14 @@ const volverAPartida = () => {
 onMounted(async () => {
   const baseProps = await obtenerPropiedades();
   const refJugProp = collection(db, `partidas/${codigo}/jugadores_propiedades`);
-  const snap = await getDocs(refJugProp);
-  const dataJugProp = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-  propiedades.value = baseProps.map((prop) => {
-    const encontrada = dataJugProp.find((p) => p.id === prop.id);
-    return encontrada ? { ...prop, propietario: encontrada.jugadorNombre, hipotecada: encontrada.hipotecada, jugadorId: encontrada.jugadorId } : prop;
+  // Escuchar cambios en la colección jugadores_propiedades
+  onSnapshot(refJugProp, (snapshot) => {
+    const dataJugProp = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    propiedades.value = baseProps.map((prop) => {
+      const encontrada = dataJugProp.find((p) => p.id === prop.id);
+      return encontrada ? { ...prop, propietario: encontrada.jugadorNombre, hipotecada: encontrada.hipotecada, jugadorId: encontrada.jugadorId, nivelRenta: encontrada.nivelRenta } : prop;
+    });
   });
 
   if (user && codigo) {
@@ -139,7 +149,21 @@ const calcularDeshipoteca = (hipoteca) => {
 };
 
 const pagarRenta = async (prop) => {
-  const renta = prop.renta?.baseRenta || 0;
+  if (prop.hipotecada) {
+    return Swal.fire("Propiedad hipotecada", "No se puede cobrar renta en una propiedad hipotecada.", "info");
+  }
+
+  const nivelRenta = prop.nivelRenta || "baseRenta";
+  let renta = prop.renta?.[nivelRenta] || 0;
+
+  // Verificar si el propietario tiene todas las propiedades del grupo
+  const grupo = propiedades.value.filter((p) => p.grupo === prop.grupo);
+  const grupoCompleto = grupo.every((p) => p.jugadorId === prop.jugadorId);
+
+  if (grupoCompleto && nivelRenta === "baseRenta") {
+    renta *= 2; // Duplicar la renta base si el grupo está completo
+  }
+
   if (!jugadorActual.value || jugadorActual.value.saldo < renta) {
     return Swal.fire("Saldo insuficiente", "No tienes suficiente saldo para pagar la renta.", "error");
   }
@@ -245,6 +269,16 @@ const deshipotecarPropiedad = async (prop) => {
 };
 
 const Hipotecar = async (prop) => {
+  const nivelActual = prop.nivelRenta || "baseRenta";
+
+  if (nivelActual !== "baseRenta") {
+    return Swal.fire({
+      title: "No se puede hipotecar",
+      text: "Debes vender todos los edificios antes de hipotecar esta propiedad.",
+      icon: "warning",
+    });
+  }
+
   if (!prop.hipotecada) {
     const result = await Swal.fire({
       title: `¿Deseas hipotecar la propiedad ${prop.nombre}?`,
@@ -279,29 +313,181 @@ const Hipotecar = async (prop) => {
 };
 
 const manejarCasasHotel = async (prop) => {
-  await Swal.fire({
-    title: `¿Te faltan calles por comprar?`,
-    text: `Primero debes comprar las calles: ${'calle 1'} , ${'calle 2'} que te faltan !!`,
-    icon: "warning",
-  });
+  if (!validarGrupoCompleto(prop)) {return} else{
+    await mejorarRenta(prop);
+  };
+
+};
+
+const validarGrupoCompleto = (prop) => {
+  const grupo = propiedades.value.filter((p) => p.grupo === prop.grupo);
+  const grupoCompleto = grupo.every((p) => p.jugadorId === jugadorActual.value.uid);
+
+  if (!grupoCompleto) {
+    const faltantes = grupo.filter((p) => p.jugadorId !== jugadorActual.value.uid).map((p) => p.nombre);
+    Swal.fire({
+      title: "¿Te faltan calles por comprar?",
+      text: `Primero debes comprar las calles: ${faltantes.join(", ")} que te faltan!!`,
+      icon: "warning",
+    });
+    return false;
+  }
+
+  const niveles = ["baseRenta", "casa1", "casa2", "casa3", "casa4", "rentaHotel"];
+  const nivelActual = niveles.indexOf(prop.nivelRenta || "baseRenta");
+
+  const nivelesGrupo = grupo.map((p) => niveles.indexOf(p.nivelRenta || "baseRenta"));
+  const nivelMinimo = Math.min(...nivelesGrupo);
+  const nivelMaximo = Math.max(...nivelesGrupo);
+
+  if (nivelActual > nivelMinimo) {
+    Swal.fire({
+      title: "Niveles de renta desiguales",
+      text: "Primero debes mejorar la renta de las otras propiedades del grupo, antes de avanzar al siguiente nivel.",
+      icon: "warning",
+    });
+    return false;
+  }
+
+  if (nivelMaximo - nivelMinimo > 1) {
+    Swal.fire({
+      title: "Progreso desigual",
+      text: "No puedes mejorar más la renta mientras las demás propiedades del grupo no estén al mismo nivel.",
+      icon: "warning",
+    });
+    return false;
+  }
+
+  return true;
+};
+
+const mejorarRenta = async (prop) => {
+  if (!validarGrupoCompleto(prop)) return;
+
+  const nivelActual = prop.nivelRenta || "baseRenta";
+  const niveles = ["baseRenta", "casa1", "casa2", "casa3", "casa4", "rentaHotel"];
+  const indiceActual = niveles.indexOf(nivelActual);
+
+  if (indiceActual === -1 || indiceActual === niveles.length - 1) {
+    return Swal.fire("No se puede mejorar", "Ya alcanzaste el nivel máximo de renta.", "info");
+  }
+
+  const siguienteNivel = niveles[indiceActual + 1];
+  const costo = prop.costoEdificios;
+
+  if (jugadorActual.value.saldo < costo) {
+    return Swal.fire("Fondos insuficientes", "No tienes suficiente saldo para mejorar la renta.", "error");
+  }
 
   const result = await Swal.fire({
     title: `¿Mejorar renta?`,
     html: `
-      <p><strong>Recuerda:</strong> Debes tener el mismo número de casas en las demás propiedades.</p>
-      <p><strong>Renta actual:</strong> <span style="color: green;">M150</span></p>
-      <p><strong>Si compras una casa:</strong> Tu renta pasará a <span style="color: red; font-weight: bold;">M200</span>.</p>
+      <p>Compra más edificios (casas/hoteles) para mejorar la renta de la propiedad</p>
+      <p><strong>Renta actual:</strong> M${prop.renta[nivelActual] * 2}</p>
+      <p><strong>Si compras otro edificio:</strong style="color: green; font-weight: bold;"> Tu renta pasará a M${prop.renta[siguienteNivel]}.</p>
+      <p><strong>Costo:</strong style="color: red;"> M${costo}</p>
     `,
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
     cancelButtonText: "Cancelar",
-    confirmButtonText: "Comprar casa",
+    confirmButtonText: "Comprar edificio",
   });
 
   if (result.isConfirmed) {
-    Swal.fire("Tu renta fue mejorada en!", `${prop.nombre}`, "success");
+    const jugadorRef = doc(db, `partidas/${codigo}/jugadores`, jugadorActual.value.uid);
+    const propiedadRef = doc(db, `partidas/${codigo}/jugadores_propiedades`, prop.id);
+
+    const nuevoSaldo = jugadorActual.value.saldo - costo;
+
+    await updateDoc(jugadorRef, { saldo: nuevoSaldo });
+    await updateDoc(propiedadRef, { nivelRenta: siguienteNivel });
+
+    prop.renta.nivelRenta = siguienteNivel;
+    jugadorActual.value.saldo = nuevoSaldo;
+
+    Swal.fire("¡Renta mejorada!", `${prop.nombre} ahora tiene una renta mayor.`, "success");
+  }
+};
+
+const venderEdificio = async (prop) => {
+  const niveles = ["baseRenta", "casa1", "casa2", "casa3", "casa4", "rentaHotel"];
+  const nivelActual = prop.nivelRenta || "baseRenta";
+  const indiceActual = niveles.indexOf(nivelActual);
+
+  if (indiceActual <= 0) {
+    return Swal.fire("No se puede vender", "No puedes vender más edificios, ya estás en el nivel base.", "info");
+  }
+
+  const nivelAnterior = niveles[indiceActual - 1];
+  const ganancia = Math.floor(prop.costoEdificios / 2);
+
+  const result = await Swal.fire({
+    title: `¿Vender edificio?`,
+    html: `
+      <p>¿Estás seguro de que deseas vender un edificio de ${prop.nombre}?</p>
+      <p><strong>Ganancia:</strong> M${ganancia}</p>
+      <p><strong>Valor de renta después de la venta:</strong> M${prop.renta[nivelAnterior] * 2}</p>
+    `,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    cancelButtonText: "Cancelar",
+    confirmButtonText: "Vender edificio",
+  });
+
+  if (result.isConfirmed) {
+    const jugadorRef = doc(db, `partidas/${codigo}/jugadores`, jugadorActual.value.uid);
+    const propiedadRef = doc(db, `partidas/${codigo}/jugadores_propiedades`, prop.id);
+
+    const nuevoSaldo = jugadorActual.value.saldo + ganancia;
+
+    await updateDoc(jugadorRef, { saldo: nuevoSaldo });
+    await updateDoc(propiedadRef, { nivelRenta: nivelAnterior });
+
+    prop.nivelRenta = nivelAnterior;
+    jugadorActual.value.saldo = nuevoSaldo;
+
+    Swal.fire("¡Edificio vendido!", `Has vendido un edificio de ${prop.nombre}.`, "success");
+  }
+};
+
+const venderPropiedad = async (prop) => {
+  if (!jugadorActual.value) return;
+
+  const result = await Swal.fire({
+    title: `¿Vender propiedad?`,
+    html: `
+      <p>¿Estás seguro de que deseas vender la propiedad ${prop.nombre}?</p>
+      <p><strong>Ganancia:</strong> M${Math.floor(prop.precio / 2)}</p>
+    `,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    cancelButtonText: "Cancelar",
+    confirmButtonText: "Vender propiedad",
+  });
+
+  if (result.isConfirmed) {
+    const jugadorRef = doc(db, `partidas/${codigo}/jugadores`, jugadorActual.value.uid);
+    const propiedadRef = doc(db, `partidas/${codigo}/jugadores_propiedades`, prop.id);
+
+    const ganancia = Math.floor(prop.precio / 2);
+    const nuevoSaldo = jugadorActual.value.saldo + ganancia;
+
+    await updateDoc(jugadorRef, { saldo: nuevoSaldo });
+    await updateDoc(propiedadRef, { jugadorId: null, jugadorNombre: null, hipotecada: false, nivelRenta: "baseRenta" });
+
+    prop.propietario = null;
+    prop.jugadorId = null;
+    prop.hipotecada = false;
+    prop.nivelRenta = "baseRenta";
+    jugadorActual.value.saldo = nuevoSaldo;
+
+    Swal.fire("¡Propiedad vendida!", `Has vendido ${prop.nombre}.`, "success");
   }
 };
 </script>
