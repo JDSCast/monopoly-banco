@@ -448,7 +448,7 @@ const venderEdificio = async (prop) => {
     html: `
       <p>¿Estás seguro de que deseas vender un edificio de ${prop.nombre}?</p>
       <p><strong>Ganancia:</strong> M${ganancia}</p>
-      <p><strong>Valor de renta después de la venta:</strong> M${prop.renta[nivelAnterior] * 2}</p>
+      <p><strong>Valor de renta después de la venta:</strong> M${nivelAnterior==="baseRenta"? prop.renta[nivelAnterior] * 2: nivelAnterior}</p>
     `,
     icon: "warning",
     showCancelButton: true,
