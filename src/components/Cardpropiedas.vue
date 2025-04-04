@@ -82,12 +82,10 @@
               <button class="btn btn-primary btn-sm me-2 m-3 p-2" @click="manejarCasasHotel(prop)">
                 Comprar edificios
               </button>
-              <button
-                class="btn btn-danger btn-sm me-2 m-3 p-2"
-                @click="prop.nivelRenta === 'baseRenta' ? venderPropiedad(prop) : venderEdificio(prop)"
-              >
-                {{ prop.nivelRenta === 'baseRenta' ? "Vender propiedad" : "Vender edificio" }}
+              <button v-if="prop.nivelRenta !== 'baseRenta'" class="btn btn-danger btn-sm me-2 m-3 p-2" @click="venderEdificio(prop)" >
+                Vender edificio
               </button>
+
             </template>
             <button class="btn btn-success btn-sm me-2 m-3 p-2" @click="Hipotecar(prop)">
               {{ prop.hipotecada ? "Deshipotecar" : "Hipotecar" }}
@@ -426,7 +424,7 @@ const mejorarRenta = async (prop) => {
 
     prop.renta.nivelRenta = siguienteNivel;
     jugadorActual.value.saldo = nuevoSaldo;
-
+    await registrarTransaccion(codigo, jugadorActual.value.nombre, "Banco", prop.costoEdificios, "pagar");
     Swal.fire("¡Renta mejorada!", `${prop.nombre} ahora tiene una renta mayor.`, "success");
   }
 };
@@ -441,14 +439,14 @@ const venderEdificio = async (prop) => {
   }
 
   const nivelAnterior = niveles[indiceActual - 1];
-  const ganancia = Math.floor(prop.costoEdificios / 2);
+  const ganancia = Math.floor(prop.costoEdificios / 2); // ✅ La ganancia es la mitad del costoEdificios
 
   const result = await Swal.fire({
     title: `¿Vender edificio?`,
     html: `
-      <p>¿Estás seguro de que deseas vender un edificio de ${prop.nombre}?</p>
+      <p>¿Estás seguro de que deseas vender un edificio de <strong>${prop.nombre}</strong>?</p>
       <p><strong>Ganancia:</strong> M${ganancia}</p>
-      <p><strong>Valor de renta después de la venta:</strong> M${nivelAnterior==="baseRenta"? prop.renta[nivelAnterior] * 2: nivelAnteriory}</p>
+      <p><strong>Valor de renta después de la venta:</strong> M${nivelAnterior === "baseRenta" ? prop.renta[nivelAnterior] * 2 : prop.renta[nivelAnterior]}</p> <!-- ✅ Interpolación corregida -->
     `,
     icon: "warning",
     showCancelButton: true,
@@ -470,46 +468,15 @@ const venderEdificio = async (prop) => {
     prop.nivelRenta = nivelAnterior;
     jugadorActual.value.saldo = nuevoSaldo;
 
+    // ✅ Guardar la venta en historial de movimientos
+    await registrarTransaccion(codigo, "Banco", jugadorActual.value.nombre, ganancia, "cobrar");
+
     Swal.fire("¡Edificio vendido!", `Has vendido un edificio de ${prop.nombre}.`, "success");
   }
 };
 
-const venderPropiedad = async (prop) => {
-  if (!jugadorActual.value) return;
 
-  const result = await Swal.fire({
-    title: `¿Vender propiedad?`,
-    html: `
-      <p>¿Estás seguro de que deseas vender la propiedad ${prop.nombre}?</p>
-      <p><strong>Ganancia:</strong> M${Math.floor(prop.precio / 2)}</p>
-    `,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    cancelButtonText: "Cancelar",
-    confirmButtonText: "Vender propiedad",
-  });
 
-  if (result.isConfirmed) {
-    const jugadorRef = doc(db, `partidas/${codigo}/jugadores`, jugadorActual.value.uid);
-    const propiedadRef = doc(db, `partidas/${codigo}/jugadores_propiedades`, prop.id);
-
-    const ganancia = Math.floor(prop.precio / 2);
-    const nuevoSaldo = jugadorActual.value.saldo + ganancia;
-
-    await updateDoc(jugadorRef, { saldo: nuevoSaldo });
-    await updateDoc(propiedadRef, { jugadorId: null, jugadorNombre: null, hipotecada: false, nivelRenta: "baseRenta" });
-
-    prop.propietario = null;
-    prop.jugadorId = null;
-    prop.hipotecada = false;
-    prop.nivelRenta = "baseRenta";
-    jugadorActual.value.saldo = nuevoSaldo;
-
-    Swal.fire("¡Propiedad vendida!", `Has vendido ${prop.nombre}.`, "success");
-  }
-};
 </script>
 
 <style scoped>
