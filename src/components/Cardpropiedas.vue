@@ -106,6 +106,7 @@ import { obtenerPropiedades } from '../firebase/obtenerPropiedades.js';
 import Swal from 'sweetalert2';
 import { getFirestore, doc, updateDoc, onSnapshot, setDoc, getDocs, collection, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { registrarTransaccion } from "../firebase/verTransaciones";
 
 const route = useRoute();
 const router = useRouter();
@@ -182,7 +183,7 @@ const pagarRenta = async (prop) => {
 
   await updateDoc(pagadorRef, { saldo: nuevoSaldoPagador });
   await updateDoc(receptorRef, { saldo: nuevoSaldoReceptor });
-
+  await registrarTransaccion(codigo, jugadorActual.value.nombre, receptor.nombre, renta, "enviar");
   Swal.fire("¡Renta pagada!", `Has pagado M${renta} a ${receptor.nombre}`, "success");
 };
 
@@ -220,6 +221,7 @@ const comprar = async (prop) => {
         });
 
         prop.propietario = jugadorActual.value.nombre || "Jugador 1";
+        await registrarTransaccion(codigo, jugadorActual.value.nombre, "Banco", prop.precio, "pagar");
         Swal.fire("¡Compra realizada!", `${prop.nombre} ahora es tuya.`, "success");
       } catch (error) {
         console.error("Error al registrar la compra:", error);
@@ -243,6 +245,9 @@ const hipotecarPropiedad = async (prop) => {
   prop.hipotecada = true;
   jugadorActual.value.saldo = nuevoSaldo;
 
+
+  await registrarTransaccion(codigo, "Banco", jugadorActual.value.nombre, prop.hipoteca, "cobrar");
+
   Swal.fire("¡Hipoteca realizada!", `${prop.nombre} ahora está hipotecada.`, "success");
 };
 
@@ -265,9 +270,11 @@ const deshipotecarPropiedad = async (prop) => {
   prop.hipotecada = false;
   jugadorActual.value.saldo = nuevoSaldo;
 
+  await registrarTransaccion(codigo, jugadorActual.value.nombre, "Banco", costoDeshipoteca, "pagar");
+
   Swal.fire("¡Deshipoteca realizada!", `${prop.nombre} ahora está deshipotecada.`, "success");
 };
-
+// ahi se trabajan las alertas  de hipotecar no borrar por que ya no sirve el boton
 const Hipotecar = async (prop) => {
   const nivelActual = prop.nivelRenta || "baseRenta";
 

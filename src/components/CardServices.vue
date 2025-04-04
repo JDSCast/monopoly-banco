@@ -108,6 +108,7 @@ import { obtenerServicios } from "../firebase/obtenerPropiedades";
 import Swal from "sweetalert2";
 import { getFirestore, doc, updateDoc, setDoc, getDocs, collection, getDoc, onSnapshot } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { registrarTransaccion } from "../firebase/verTransaciones";
 
 export default {
   name: "CardService",
@@ -194,12 +195,14 @@ export default {
             nombre: servicio.nombre,
             nivelRenta: "baseRenta",
             hipotecada: false
+          
           });
 
           servicio.propietario = jugadorActual.value.nombre;
           servicio.jugadorId = jugadorActual.value.uid;
           servicio.hipotecada = false;
 
+          await registrarTransaccion(codigo, jugadorActual.value.nombre, "Banco", servicio.precio, "pagar");
           Swal.fire("¡Compra realizada!", `${servicio.nombre} ahora es tuyo.`, "success");
         }
       }
@@ -227,7 +230,7 @@ export default {
             const jugador = jugadorSnap.data();
             await updateDoc(jugadorRef, { saldo: jugador.saldo + servicio.hipoteca });
           }
-
+          await registrarTransaccion(codigo, "Banco", jugadorActual.value.nombre,servicio.hipoteca, "cobrar");
           Swal.fire("¡Hecho!", `${servicio.nombre} ahora está hipotecado.`, "success");
         }
       } else {
@@ -251,7 +254,7 @@ export default {
             const jugador = jugadorSnap.data();
             await updateDoc(jugadorRef, { saldo: jugador.saldo - costo });
           }
-
+          await registrarTransaccion(codigo, jugadorActual.value.nombre, "Banco", costo, "pagar");
           Swal.fire("¡Hecho!", `${servicio.nombre} ya no está hipotecado.`, "success");
         }
       }
@@ -305,7 +308,7 @@ export default {
 
       await updateDoc(pagadorRef, { saldo: jugadorActual.value.saldo - renta });
       await updateDoc(receptorRef, { saldo: receptor.saldo + renta });
-
+      await registrarTransaccion(codigo, jugadorActual.value.nombre, receptor.nombre, renta, "enviar");
       Swal.fire("¡Renta pagada!", `Pagaste M${renta} a ${receptor.nombre}`, "success");
     };
 
