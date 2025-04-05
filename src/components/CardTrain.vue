@@ -113,22 +113,19 @@ const calcularDeshipoteca = (hipoteca) => {
   return Math.round(hipoteca * 1.1);
 };
 
-onMounted(async () => {
-  const baseEstaciones = await obtenerEstaciones();
-  const refJugProp = collection(db, `partidas/${codigo}/jugadores_propiedades`);
-  const snap = await getDocs(refJugProp);
-  const dataJugProp = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    onMounted(async () => {
+        const baseEstaciones = await obtenerEstaciones();
+        const refJugProp = collection(db, `partidas/${codigo}/jugadores_propiedades`);
 
-  estaciones.value = baseEstaciones
-    .filter((e) => e.tipo === "estacion")
-    .map((estacion) => {
-      const encontrada = dataJugProp.find((p) => p.id === estacion.id);
-      return encontrada
-        ? { ...estacion, propietario: encontrada.jugadorNombre, hipotecada: encontrada.hipotecada, jugadorId: encontrada.jugadorId }
-        : estacion;
+      // Escuchar cambios en la colección jugadores_propiedades
+      onSnapshot(refJugProp, (snapshot) => {
+        const dataJugProp = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        estaciones.value = baseEstaciones.map((prop) => {
+        const encontrada = dataJugProp.find((p) => p.id === prop.id);
+        return encontrada ? { ...prop, propietario: encontrada.jugadorNombre, hipotecada: encontrada.hipotecada, jugadorId: encontrada.jugadorId, nivelRenta: encontrada.nivelRenta } : prop;
+      });
     });
-
-  if (user && codigo) {
+    if (user && codigo) {
     const jugadorRef = doc(db, `partidas/${codigo}/jugadores`, user.uid);
     onSnapshot(jugadorRef, (docSnap) => {
       if (docSnap.exists()) {
@@ -136,7 +133,7 @@ onMounted(async () => {
       }
     });
   }
-});
+    });
 
 const comprar = async (estacion) => {
   if (!estacion.propietario && jugadorActual.value) {

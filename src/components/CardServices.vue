@@ -127,21 +127,21 @@ export default {
       router.push(`/cards/${codigo}`);
     };
 
-    const cargarServicios = async () => {
-      const baseServicios = await obtenerServicios();
-      const refJugProp = collection(db, `partidas/${codigo}/jugadores_propiedades`);
-      const snap = await getDocs(refJugProp);
-      const dataJugProp = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    // const cargarServicios = async () => {
+    //   const baseServicios = await obtenerServicios();
+    //   const refJugProp = collection(db, `partidas/${codigo}/jugadores_propiedades`);
+    //   const snap = await getDocs(refJugProp);
+    //   const dataJugProp = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-      servicios.value = baseServicios
-        .filter((servicio) => servicio.tipo === "servicio")
-        .map((servicio) => {
-          const encontrada = dataJugProp.find((p) => p.id === servicio.id);
-          return encontrada
-            ? { ...servicio, propietario: encontrada.jugadorNombre, hipotecada: encontrada.hipotecada, jugadorId: encontrada.jugadorId }
-            : servicio;
-        });
-    };
+    //   servicios.value = baseServicios
+    //     .filter((servicio) => servicio.tipo === "servicio")
+    //     .map((servicio) => {
+    //       const encontrada = dataJugProp.find((p) => p.id === servicio.id);
+    //       return encontrada
+    //         ? { ...servicio, propietario: encontrada.jugadorNombre, hipotecada: encontrada.hipotecada, jugadorId: encontrada.jugadorId }
+    //         : servicio;
+    //     });
+    // };
 
     const getImagen = (nombre) => {
       if (nombre.toLowerCase().includes("electric")) {
@@ -159,15 +159,25 @@ export default {
     };
 
     onMounted(async () => {
-      await cargarServicios();
-      if (user && codigo) {
-        const jugadorRef = doc(db, `partidas/${codigo}/jugadores`, user.uid);
-        onSnapshot(jugadorRef, (docSnap) => {
-          if (docSnap.exists()) {
-            jugadorActual.value = { uid: user.uid, ...docSnap.data() };
-          }
-        });
+        const baseServicios = await obtenerServicios();
+        const refJugProp = collection(db, `partidas/${codigo}/jugadores_propiedades`);
+
+      // Escuchar cambios en la colección jugadores_propiedades
+      onSnapshot(refJugProp, (snapshot) => {
+        const dataJugProp = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        servicios.value = baseServicios.map((prop) => {
+        const encontrada = dataJugProp.find((p) => p.id === prop.id);
+        return encontrada ? { ...prop, propietario: encontrada.jugadorNombre, hipotecada: encontrada.hipotecada, jugadorId: encontrada.jugadorId, nivelRenta: encontrada.nivelRenta } : prop;
+      });
+    });
+    if (user && codigo) {
+    const jugadorRef = doc(db, `partidas/${codigo}/jugadores`, user.uid);
+    onSnapshot(jugadorRef, (docSnap) => {
+      if (docSnap.exists()) {
+        jugadorActual.value = { uid: user.uid, ...docSnap.data() };
       }
+    });
+  }
     });
 
     const comprar = async (servicio) => {
