@@ -1,16 +1,16 @@
 <template>
-  <div class="container vh-100 d-flex align-items-center justify-content-center">
+  <div class="container d-flex align-items-center justify-content-center ">
     <div class="row w-100 flex-column flex-md-row align-items-center ">
 
       <!-- Columna de la imagen -->
-      <div class="col-md-5 d-flex justify-content-center mb-3 mb-md-0 img-espacio" >
-        <img src="/Logo_monopoly.jpg" alt="Sr. Monopoly" class="w-50 img-espacio"/>
+      <div class="col-md-5 d-flex justify-content-center mb-3 mb-md-0 img-espacio " >
+        <img src="/Logo_monopoly.jpg" alt="Sr. Monopoly" class="w-50 img-espacio filter"/>
       </div>
 
       <!-- Columna de la tarjeta con la información del jugador -->
-      <div class="col-md-7 d-flex justify-content-center ">
-        <div class="card card-game p-4 w-100 shadow-lg">
-          <div class="card-body-game text-center">
+      <div class="col-md-7 d-flex justify-content-center  ">
+        <div class="card card-game p-2 w-100 box ">
+          <div class="card-body-game p-2 text-center">
             <h4>{{ jugadorActual?.nombre || "Jugador" }}</h4>
             <h4 class="text-center fw-bold">${{ jugadorActual?.saldo || 0 }}</h4>
             <hr />
@@ -27,17 +27,17 @@
             <!-- Botones -->
             <div class="d-flex justify-content-between mt-3 gap-2 flex-column flex-sm-row ">
               <div class="">
-                <button class="btn btn-warning w-100 w-sm-auto mt-2" @click="$router.push(`/comercio/${codigo}`)">
+                <button class="btn btn-warning w-100 w-sm-auto mt-2 p-3" @click="$router.push(`/comercio/${codigo}`)">
                   Comercio
                 </button>
-                <button class="btn btn-primary w-100 w-sm-auto mt-2" @click="$router.push(`/transaction/${codigo}`)">
+                <button class="btn btn-primary w-100 w-sm-auto mt-2 p-3" @click="$router.push(`/transaction/${codigo}`)">
                   Transacciones
                 </button>
-                <button class="btn btn-success w-100 w-sm-auto mt-2" @click="$router.push(`/cards/${codigo}`)">
+                <button class="btn btn-success w-100 w-sm-auto mt-2 p-3 " @click="$router.push(`/cards/${codigo}`)">
                   Propiedades
                 </button>
               </div>
-              <div class="dropdown ">
+              <div class="dropdown m-0 ">
                 <button class="m-2 btn text-center btn-secondary dropdown-toggle w-70 " type="button" 
                         data-bs-toggle="dropdown" aria-expanded="false">
                   <BsBoxArrowRight />
@@ -149,6 +149,12 @@
   };
   </script>
   
-  <style scoped>
+  <style >
   @import "../styles/gameBoard.css";
+  .box{
+    box-shadow: 10px 14px 14px 5px  rgba(0, 0, 0, 0.37);
+  }
+  .filter{
+    filter: drop-shadow(0 4px 8px rgb(0, 0, 0));
+  }
   </style>

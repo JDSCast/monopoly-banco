@@ -1,22 +1,22 @@
 <template>
   <div class="container vh-100 d-flex align-items-center">
-    <div class="row w-100">
+    <div class="row">
 
       <!-- Columna de la imagen -->
       <div class="col-md-6 d-flex justify-content-center align-items-center">
         <img
           src="/Sr._Monopoly.jpg"
           alt="Sr. Monopoly"
-          class="img-fluid  w-25"
+          class="img-fluid w-25 filter"
         />
       </div>
 
       <!-- Columna de los botones -->
       <div class="col-md-6 d-flex justify-content-center align-items-center">
         <div class="bg-white pt-4 pb-4 shadow-lg rounded w-100 text-center">
-          <h1 class="mb-4">Menú de Propiedades</h1>
-          <div class="d-flex flex-column gap-3 align-items-center w-100">
-            <button type="button" class="btn btn-danger p-2 fs-4 w-75" @click="VsPropiedades">
+          <h1 class="mb-4">Menú propiedades</h1>
+          <div class="d-flex flex-column gap-3 align-items-center">
+            <button type="button" class="btn btn-danger p-2 fs-4 w-75 box-btn" @click="VsPropiedades">
               Calles
             </button>
             <button type="button" class="btn btn-warning p-2 fs-4 w-75" @click="VsEstaciones">
@@ -25,7 +25,7 @@
             <button type="button" class="btn btn-success p-2 fs-4 w-75" @click="VsServicios">
               Servicios
             </button>
-            <button type="button" class="btn btn-info p-2 fs-4 w-75" @click="volverAPartida">
+            <button type="button" class="btn btn-info p-2 fs-4 w-75 " @click="volverAPartida">
               Volver
             </button>
           </div>
@@ -66,3 +66,7 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+
+</style>

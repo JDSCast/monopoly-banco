@@ -1,22 +1,23 @@
 <template>
   <div class="container-transaction">
     <div class="card card-transaction">
-      <div class="card-body card-body-transaction">
+      <div class="card-body card-body-transaction ">
         <form @submit.prevent="handleConfirmar">
-          <h4 class="text-center">Transacciones</h4>
+          <h2 class="text-center">Transacciones</h2>
 
           <div class="row align-items-center">
-            <div class="col-md-6">
-              <label class="form-label">Usuario Actual: </label>
-              <p class="form-control-plaintext">{{ jugadorActual?.nombre || 'N/A' }}</p>
+            <div class="row align-items-center">
+                <div class="col-md-4 info_usuario m-2 fs-5">
+                  <label class="form-label">Usuario Actual: </label>
+                  <p class="">{{ jugadorActual?.nombre || 'N/A' }}</p>
+                </div>
+              
+                <div class="col-md-6 info_usuario  m-2 fs-5">
+                  <label class="form-label">Saldo: </label>
+                  <p class="">{{ jugadorActual?.saldo || 'N/A' }}</p>
+                </div>
             </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Saldo: </label>
-              <p class="form-control-plaintext">{{ jugadorActual?.saldo || 'N/A' }}</p>
-            </div>
-
-            <div class="col-md-4">
+            <div class="col-md-4 p-2">
               <label class="form-label">Monto</label>
               <input
                 type="number"
@@ -26,7 +27,7 @@
               />
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-4 p-2">
               <label class="form-label">Tipo</label>
               <select class="form-select" v-model="tipo">
                 <option value="enviar">Enviar dinero</option>
@@ -35,7 +36,7 @@
               </select>
             </div>
 
-            <div class="col-md-4" v-if="tipo === 'enviar'">
+            <div class="col-md-4 p-2" v-if="tipo === 'enviar'">
               <label class="form-label">Destino</label>
               <select
                 class="form-select"
@@ -68,14 +69,14 @@
           </div>
           
         </form>
-        <div class="border-top pt-3 p-0">
+        <div class="border-top mt-3 p-2 historial">
               <h5 class="text-center">Historial de transacciones</h5>
-              <div class="historial-container">
-                <div class="list-group list-group-historial">
+              <div class="historial-container mb-1 " >
+                <div class="list-group list-group-historial " style="max-height: 200px;">
                   <div
                     v-for="(t, index) in transacciones.slice().reverse()"
                     :key="index"
-                    class="list-group-item list-group-item-historial d-flex justify-content-between"
+                    class="list-group-item list-group-item-historial d-flex justify-content-between mb-2 "
                   >
                     <div>
                       <h6 class="mb-1">
@@ -277,4 +278,13 @@ export default {
 
 <style scoped>
 @import "../styles/transaction.css";
+
+.info_usuario{
+  width: 180px;
+  border-bottom: 1px solid rgb(0, 148, 66);
+}
+
+.historial{
+  height: 250px;
+}
 </style>

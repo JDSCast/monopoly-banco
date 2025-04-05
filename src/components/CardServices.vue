@@ -4,7 +4,7 @@
       <h1 class="text-center">Servicios del Monopoly</h1>
     </div>
 
-    <button type="button" class="btn fixed-bottom btn-warning mb-4 w-25 m-4 p-2 shadow-lg fs-4 fw-bold rounded-pill" @click="volverAPartida">
+    <button type="button" class="btn fixed-bottom btn-warning mb-4 w-25 m-4 p-2 fs-4 fw-bold boton-shadow" @click="volverAPartida">
       Volver
     </button>
 
@@ -12,7 +12,7 @@
       <div
         v-for="servicio in servicios"
         :key="servicio.id"
-        class="card w-50 mx-auto shadow-lg mb-4"
+        class="card card_width mx-auto shadow-lg mb-4"
       >
         <div class="card-header d-flex justify-content-center bg-white">
           <img
@@ -341,4 +341,18 @@ export default {
 .red-bg {
   background-color: #ff0000;
 }
+
+.card_width{
+  width: 400px;
+}
+
+.boton-shadow {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.857);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+
+  .boton-shadow:hover {
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+  }
 </style>

@@ -2,16 +2,24 @@
     <div class="container">
       <header
         id="header"
-        class="d-flex flex-column justify-content-center align-items-center p-2 m-0 w-100 text-white"
+        class="p-2 m-0 w-100 text-white "
       >
-        <h1 class="text-center mb-3">Crear comercio</h1>
-        <div class="d-flex justify-content-center align-items-center gap-4">
+      <div class="row justify-content-center text-center mb-3">
+        <div class="col-12 mb-2 ">
+          <img src="/Comercio2.png" alt="Sr. Monopoly" class="Logo img-fluid mx-auto d-block filter" />
+        </div>
+        <div class="col-12">
+          <h1 class="mb-0 filter">Crear comercio</h1>
+        </div>
+      </div>
+      
+        <div class="d-flex justify-content-center align-items-center gap-4 filter">
           <h3 class="mb-0">Personaje 1</h3>
           <h3 class="mb-0">M1500</h3>
         </div>
       </header>
   
-      <main class="bg-white border border-2 mt-2 mb-2 p-2">
+      <main class="bg-white border border-2 bor mt-2 mb-2 p-3 box rounded">
         <p>Seleccionar jugador para realizar comercio</p>
         <h4>Jugadores</h4>
         <div class="dropdown">
@@ -36,7 +44,7 @@
         </div>
       </main>
   
-      <aside class="bg-white border border-2 p-2">
+      <aside class="bg-white border border-2  p-3 box rounded">
         <h3>Ofrecer:</h3>
         <div>
           <h4>Propiedades</h4>
@@ -163,8 +171,14 @@
   @import "../styles/crearcomercio.css";
   
   header {
-    background-color: #8e3434;
-    box-shadow: 4px 4px 10px 8px rgba(0, 0, 0, 0.2);
+    filter: drop-shadow(0 4px 8px rgb(0, 0, 0));
+  }
+  .Logo{
+    width: 80px;
+    filter: drop-shadow(0 4px 8px rgb(0, 0, 0));
+  }
+  .box{
+    box-shadow: 10px 14px 14px 5px  rgba(0, 0, 0, 0.37);
   }
   </style>
   

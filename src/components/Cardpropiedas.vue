@@ -4,11 +4,11 @@
       <h1 class="text-center">Calles del Monopoly</h1>
     </div>
 
-    <button type="button" class="btn fixed-bottom btn-warning mb-4 w-25 m-4 p-2 shadow-lg fs-4 fw-bold rounded-pill" @click="volverAPartida">
+    <button type="button" class="btn fixed-bottom btn-warning mb-4 w-25 m-4 p-2 fs-4 fw-bold boton-shadow" @click="volverAPartida">
       Volver
     </button>
 
-    <div v-for="prop in propiedades" :key="prop.id" class="card m-4 w-75">
+    <div v-for="prop in propiedades" :key="prop.id" class="card m-4  card_weight">
       <div class="all-card text-center p-4" :style="{ backgroundColor: prop.color, color: 'white' }">
         <div class="title-card">
           <h3 class="text-title">{{ prop.nombre?.toUpperCase() || "Sin nombre" }}</h3>
@@ -483,6 +483,9 @@ const venderEdificio = async (prop) => {
 .red-bg {
   background-color: #FF0000;
 }
+.card_weight{
+  width: 400px;
+}
 .all-card {
   display: flex;
   width: 100%;
@@ -535,4 +538,14 @@ h3.text-center {
   margin-bottom: 20px;
   font-weight: bold;
 }
+
+.boton-shadow {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.857);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+
+  .boton-shadow:hover {
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+  }
 </style>

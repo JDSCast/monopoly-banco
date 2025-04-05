@@ -1,12 +1,12 @@
 <template>
   <div class="container">
-      <header id="header" class="d-flex h-25 w-100 justify-content-center align-items-center p-1 rounded-pill text-black ">
+      <header id="header" class="filter d-flex h-25 w-100 justify-content-center align-items-center p-1 ">
           <img
           src="/Dinero.png"
           alt="Dinero"
-          class="img-fluid w-25"
+          class="img-fluid filter w-25 "
           /> 
-          <h1 class="text-center">Comercio</h1>
+          <h1 id="titulo" class="text-center">Comercio</h1>
       </header>
       
       <div class="container">
@@ -14,7 +14,7 @@
               <div class="col-12 col-md-6 mb-4 " v-for="n in 4" :key="n">
               <div class="card h-100 w-70 ">
                   <div class="card-header">
-                  <h4 class="card-title p-2">Trueque</h4>
+                  <h4 class="card-title p-2 ">Trueque</h4>
                   </div>
                   <div class="card-body">
                   <p class="card-text"> Jugador 1 <-- Comerciando --> Jugador 2</p>
@@ -28,10 +28,10 @@
           </div>
       </div>
           
-          <div class="fixed-bottom justify-content-start align-items-start">
+          <div class="fixed-bottom m-2 justify-content-start align-items-start">
               <button
               type="button"
-              class="btn btn-success mb-4 w-25 m-4 p-2 shadow-lg fs-4 fw-bold rounded-pill"
+              class="btn boton-shadow btn-danger  w-25 m-2  fs-4 "
               @click="volverAPartida"
               >
               Volver
@@ -39,7 +39,7 @@
 
               <button
               type="button"
-              class="btn  btn-warning mb-4 w-50 m-4 p-2 shadow-lg fs-4 fw-bold rounded-pill"
+              class="btn boton-shadow btn-warning  w-50 m-2 fs-4  "
               @click="CrearTrueque"
               >
               Crear Trueque
@@ -104,16 +104,29 @@
   </script>
   
   <style scoped>
+  .boton-shadow {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.857);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+
+  .boton-shadow:hover {
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+  }
+  .filter{
+    filter: drop-shadow(20 4px 10px rgba(0, 0, 0, 0.5));
+  }
+  #titulo{
+    color: white;
+    font-size: 42px;
+    filter: drop-shadow(0px 0px 10px rgb(0, 0, 0));
+  }
   .card{
     box-shadow: 4px 4px 10px 8px rgba(0, 0, 0, 0.2);
   }
   .container {
     text-align: center;
     padding: 20px;
-  }
-  #header{
-    background-color: #ffd561;
-    box-shadow: 4px 4px 10px 8px rgba(0, 0, 0, 0.2);
   }
   .comerciar {
     background-color: #009e61;
